@@ -2,7 +2,7 @@ specVersion: 0.0.2
 description: Zora Media
 repository: https://github.com/graphprotocol/example-subgraph
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: Media
@@ -18,8 +18,12 @@ dataSources:
         - Media
       abis:
         - name: Media
-          file: ./abis/Media.json
+          file: Media/abis/Media.json
       eventHandlers:
+        - event: TokenURIUpdated(indexed uint256,address,string)
+          handler: handleUpdatedTokenURI
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
         - event: Mint(indexed address,indexed address,indexed uint256,bytes32,bytes32)
           handler: handleMint
-      file: ./src/mapping.ts
+      file: Media/Media.wasm
