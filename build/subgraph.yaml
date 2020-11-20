@@ -20,10 +20,6 @@ dataSources:
         - name: Media
           file: Media/abis/Media.json
       eventHandlers:
-        - event: TokenURIUpdated(indexed uint256,address,string)
-          handler: handleUpdatedTokenURI
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
-        - event: Mint(indexed address,indexed address,indexed uint256,bytes32,bytes32)
+        - event: Mint(indexed address,indexed uint256,bytes32,bytes32)
           handler: handleMint
       file: Media/Media.wasm

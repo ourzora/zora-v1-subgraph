@@ -1,13 +1,9 @@
 import {Media, User} from "../types/schema";
 import {Media as MediaContract, Transfer, Mint} from "../types/Media/Media";
-import {Address, Bytes} from "@graphprotocol/graph-ts";
-
-const zeroAddress = "0x0000000000000000000000000000000000000000";
+import {Bytes} from "@graphprotocol/graph-ts";
 
 export function handleMint(event: Mint): void {
-    let owner = findOrCreateUser(event.params.owner.toHex());
     let creator = findOrCreateUser(event.params.creator.toHex());
-    let prevOwner = findOrCreateUser(zeroAddress);
     let tokenId = event.params.tokenId;
 
     let mediaContract = MediaContract.bind(event.address);
@@ -16,9 +12,9 @@ export function handleMint(event: Mint): void {
 
     createMedia(
         tokenId.toString(),
-        owner,
         creator,
-        prevOwner,
+        creator,
+        creator,
         contentURI,
         event.params.contentHash,
         metadataURI,

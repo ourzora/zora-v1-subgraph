@@ -20,6 +20,6 @@ dataSources:
         - name: Media
           file: ./abis/Media.json
       eventHandlers:
-        - event: Mint(indexed address,indexed address,indexed uint256,bytes32,bytes32)
+        - event: Mint(indexed address,indexed uint256,bytes32,bytes32)
           handler: handleMint
       file: ./src/mapping.ts

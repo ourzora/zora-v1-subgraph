@@ -101,24 +101,20 @@ export class Mint__Params {
     this._event = event;
   }
 
-  get owner(): Address {
+  get creator(): Address {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get creator(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
   get tokenId(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
+    return this._event.parameters[1].value.toBigInt();
   }
 
   get contentHash(): Bytes {
-    return this._event.parameters[3].value.toBytes();
+    return this._event.parameters[2].value.toBytes();
   }
 
   get metadataHash(): Bytes {
-    return this._event.parameters[4].value.toBytes();
+    return this._event.parameters[3].value.toBytes();
   }
 }
 
