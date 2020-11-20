@@ -1,28 +1,46 @@
 import {Media, User} from "../types/schema";
 import {Media as MediaContract, Transfer, Mint} from "../types/Media/Media";
-import {Address, Bytes} from "@graphprotocol/graph-ts";
+import {Address, Bytes, BigInt} from "@graphprotocol/graph-ts";
+
 
 const zeroAddress = "0x0000000000000000000000000000000000000000";
 
-export function handleMint(event: Mint): void {
-    let owner = findOrCreateUser(event.params.owner.toHex());
-    let creator = findOrCreateUser(event.params.creator.toHex());
-    let prevOwner = findOrCreateUser(zeroAddress);
+export function handleTransfer(event: Transfer): void {
+    let toUser = findOrCreateUser(event.params.to.toHex());
+    let fromUser = findOrCreateUser(event.params.from.toHex());
+
+    if (fromUser.id == zeroAddress){
+        handleMint(event);
+        return;
+    }
+
+    let tokenId = event.params.tokenId.toString();
+    let media = Media.load(tokenId);
+    media.owner = toUser.id;
+    media.prevOwner = fromUser.id;
+    media.save();
+}
+
+function handleMint(event: Transfer): void {
+    let creator = findOrCreateUser(event.params.to.toHex());
     let tokenId = event.params.tokenId;
 
     let mediaContract = MediaContract.bind(event.address);
     let contentURI = mediaContract.tokenURI(tokenId);
     let metadataURI = mediaContract.tokenMetadataURI(tokenId);
 
+    let contentHash = mediaContract.tokenContentHashes(tokenId);
+    let metadataHash = mediaContract.tokenMetadataHashes(tokenId);
+
     createMedia(
         tokenId.toString(),
-        owner,
         creator,
-        prevOwner,
+        creator,
+        creator,
         contentURI,
-        event.params.contentHash,
+        contentHash,
         metadataURI,
-        event.params.metadataHash
+        metadataHash
     )
 }
 
