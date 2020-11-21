@@ -1,5 +1,5 @@
 import {Media, User} from "../types/schema";
-import {Media as MediaContract, Transfer, TokenURIUpdated, TokenMetadataURIUpdated} from "../types/Media/Media";
+import {Media as MediaContract, Approval, Transfer, TokenURIUpdated, TokenMetadataURIUpdated} from "../types/Media/Media";
 import {Address, Bytes, BigInt, log} from "@graphprotocol/graph-ts";
 
 
@@ -58,6 +58,30 @@ export function handleTransfer(event: Transfer): void {
     media.save();
 
     log.info(`Completed for Transfer Event of tokenId: {}, from: {}. to: {}`, [tokenId, fromAddr, toAddr])
+}
+
+export function handleApproval(event: Approval): void {
+    let ownerAddr = event.params.owner.toHexString();
+    let approvedAddr = event.params.approved.toHexString();
+    let tokenId = event.params.tokenId.toString();
+
+    log.info(`Starting handler for Approval Event of tokenId: {}, owner: {}, approved: {}`, [tokenId, ownerAddr, approvedAddr])
+
+    let media = Media.load(tokenId);
+    if (media == null) {
+        log.error("Media is null", [tokenId]);
+    }
+
+    if (approvedAddr == zeroAddress) {
+        media.approved = null;
+    } else {
+        let approvedUser = findOrCreateUser(approvedAddr);
+        media.approved = approvedUser.id;
+    }
+
+    media.save();
+
+    log.info(`Completed handler for Approval Event of tokenId: {}, owner: {}, approved: {}`, [tokenId, ownerAddr, approvedAddr])
 }
 
 function handleMint(event: Transfer): void {

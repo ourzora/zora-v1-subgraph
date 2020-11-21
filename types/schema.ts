@@ -69,6 +69,23 @@ export class Media extends Entity {
     this.set("prevOwner", Value.fromString(value));
   }
 
+  get approved(): string | null {
+    let value = this.get("approved");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set approved(value: string | null) {
+    if (value === null) {
+      this.unset("approved");
+    } else {
+      this.set("approved", Value.fromString(value as string));
+    }
+  }
+
   get contentHash(): Bytes {
     let value = this.get("contentHash");
     return value.toBytes();
@@ -134,6 +151,23 @@ export class User extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get authorizedUser(): string | null {
+    let value = this.get("authorizedUser");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set authorizedUser(value: string | null) {
+    if (value === null) {
+      this.unset("authorizedUser");
+    } else {
+      this.set("authorizedUser", Value.fromString(value as string));
+    }
   }
 
   get collection(): Array<string> | null {
