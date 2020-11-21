@@ -62,66 +62,6 @@ export class ApprovalForAll__Params {
   }
 }
 
-export class Burn extends ethereum.Event {
-  get params(): Burn__Params {
-    return new Burn__Params(this);
-  }
-}
-
-export class Burn__Params {
-  _event: Burn;
-
-  constructor(event: Burn) {
-    this._event = event;
-  }
-
-  get owner(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get creator(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get tokenId(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
-  }
-}
-
-export class Mint extends ethereum.Event {
-  get params(): Mint__Params {
-    return new Mint__Params(this);
-  }
-}
-
-export class Mint__Params {
-  _event: Mint;
-
-  constructor(event: Mint) {
-    this._event = event;
-  }
-
-  get owner(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get creator(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get tokenId(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
-  }
-
-  get contentHash(): Bytes {
-    return this._event.parameters[3].value.toBytes();
-  }
-
-  get metadataHash(): Bytes {
-    return this._event.parameters[4].value.toBytes();
-  }
-}
-
 export class TokenMetadataURIUpdated extends ethereum.Event {
   get params(): TokenMetadataURIUpdated__Params {
     return new TokenMetadataURIUpdated__Params(this);
@@ -693,8 +633,12 @@ export class AcceptBidCallBidStruct extends ethereum.Tuple {
     return this[2].toAddress();
   }
 
+  get recipient(): Address {
+    return this[3].toAddress();
+  }
+
   get sellOnFee(): AcceptBidCallBidSellOnFeeStruct {
-    return this[3].toTuple() as AcceptBidCallBidSellOnFeeStruct;
+    return this[4].toTuple() as AcceptBidCallBidSellOnFeeStruct;
   }
 }
 
@@ -759,7 +703,7 @@ export class AuctionTransferCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get bidder(): Address {
+  get recipient(): Address {
     return this._call.inputValues[1].value.toAddress();
   }
 }
@@ -1209,8 +1153,12 @@ export class SetBidCallBidStruct extends ethereum.Tuple {
     return this[2].toAddress();
   }
 
+  get recipient(): Address {
+    return this[3].toAddress();
+  }
+
   get sellOnFee(): SetBidCallBidSellOnFeeStruct {
-    return this[3].toTuple() as SetBidCallBidSellOnFeeStruct;
+    return this[4].toTuple() as SetBidCallBidSellOnFeeStruct;
   }
 }
 

@@ -65,68 +65,6 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "Burn",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "contentHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "metadataHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "Mint",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "internalType": "uint256",
         "name": "_tokenId",
         "type": "uint256"
@@ -235,6 +173,11 @@
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
             "components": [
               {
                 "internalType": "uint256",
@@ -284,7 +227,7 @@
       },
       {
         "internalType": "address",
-        "name": "bidder",
+        "name": "recipient",
         "type": "address"
       }
     ],
@@ -729,6 +672,11 @@
           {
             "internalType": "address",
             "name": "bidder",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "recipient",
             "type": "address"
           },
           {
