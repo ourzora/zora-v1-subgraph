@@ -121,6 +121,33 @@ export class Media extends Entity {
   set metadataURI(value: string) {
     this.set("metadataURI", Value.fromString(value));
   }
+
+  get ownerBidShare(): BigInt {
+    let value = this.get("ownerBidShare");
+    return value.toBigInt();
+  }
+
+  set ownerBidShare(value: BigInt) {
+    this.set("ownerBidShare", Value.fromBigInt(value));
+  }
+
+  get creatorBidShare(): BigInt {
+    let value = this.get("creatorBidShare");
+    return value.toBigInt();
+  }
+
+  set creatorBidShare(value: BigInt) {
+    this.set("creatorBidShare", Value.fromBigInt(value));
+  }
+
+  get prevOwnerBidShare(): BigInt {
+    let value = this.get("prevOwnerBidShare");
+    return value.toBigInt();
+  }
+
+  set prevOwnerBidShare(value: BigInt) {
+    this.set("prevOwnerBidShare", Value.fromBigInt(value));
+  }
 }
 
 export class User extends Entity {
