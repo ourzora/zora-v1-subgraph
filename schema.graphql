@@ -12,7 +12,7 @@ type Media @entity {
 
 type User @entity {
   id: ID!
-  authorizedUser: User
+  authorizedUsers: [User!]
   collection: [Media!] @derivedFrom(field: "owner")
   creations: [Media!] @derivedFrom(field: "creator")
 }

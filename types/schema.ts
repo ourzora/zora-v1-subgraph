@@ -153,20 +153,23 @@ export class User extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get authorizedUser(): string | null {
-    let value = this.get("authorizedUser");
+  get authorizedUsers(): Array<string> | null {
+    let value = this.get("authorizedUsers");
     if (value === null) {
       return null;
     } else {
-      return value.toString();
+      return value.toStringArray();
     }
   }
 
-  set authorizedUser(value: string | null) {
+  set authorizedUsers(value: Array<string> | null) {
     if (value === null) {
-      this.unset("authorizedUser");
+      this.unset("authorizedUsers");
     } else {
-      this.set("authorizedUser", Value.fromString(value as string));
+      this.set(
+        "authorizedUsers",
+        Value.fromStringArray(value as Array<string>)
+      );
     }
   }
 
