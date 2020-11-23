@@ -1,7 +1,7 @@
 import {Media, User} from "../types/schema";
 import {Media as MediaContract, Approval, ApprovalForAll, Transfer, TokenURIUpdated, TokenMetadataURIUpdated} from "../types/Media/Media";
 import {Address, Bytes, BigInt, log} from "@graphprotocol/graph-ts";
-
+import {findOrCreateUser, createMedia, fetchMediaBidShares, BidShares} from './helpers';
 
 const zeroAddress = "0x0000000000000000000000000000000000000000";
 
@@ -12,7 +12,7 @@ export function handleTokenURIUpdated(event: TokenURIUpdated): void {
 
     let media = Media.load(tokenId);
     if (media == null){
-        log.error("Media is null", []);
+        log.error("Media is null for tokenId: {}", [tokenId]);
     }
 
     media.contentURI = event.params._uri;
@@ -28,7 +28,7 @@ export function handleTokenMetadataURIUpdated(event: TokenMetadataURIUpdated): v
 
     let media = Media.load(tokenId);
     if (media == null){
-        log.error("Media is null", []);
+        log.error("Media is null for tokenId: {}", [tokenId]);
     }
 
     media.metadataURI = event.params._uri;
@@ -70,7 +70,7 @@ export function handleApproval(event: Approval): void {
 
     let media = Media.load(tokenId);
     if (media == null) {
-        log.error("Media is null", [tokenId]);
+        log.error("Media is null for tokenId: {}", [tokenId]);
     }
 
     if (approvedAddr == zeroAddress) {
@@ -98,14 +98,11 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
 
     if (approved == true) {
         owner.authorizedUsers = owner.authorizedUsers.concat([operator.id]);
-        log.info("Pushed operator to authorized users for owner. AuthorizedUsers: {}", [owner.authorizedUsers.toString()]);
     } else {
         let index = owner.authorizedUsers.indexOf(operator.id);
         let copyAuthorizedUsers = owner.authorizedUsers;
         copyAuthorizedUsers.splice(index, 1);
         owner.authorizedUsers = copyAuthorizedUsers;
-
-        log.info("Removed authorized user. {} ", [owner.authorizedUsers.toString()]);
     }
 
     owner.save();
@@ -124,6 +121,8 @@ function handleMint(event: Transfer): void {
     let contentHash = mediaContract.tokenContentHashes(tokenId);
     let metadataHash = mediaContract.tokenMetadataHashes(tokenId);
 
+    let bidShares = fetchMediaBidShares(tokenId);
+
     createMedia(
         tokenId.toString(),
         creator,
@@ -132,30 +131,9 @@ function handleMint(event: Transfer): void {
         contentURI,
         contentHash,
         metadataURI,
-        metadataHash
+        metadataHash,
+        bidShares.creator,
+        bidShares.owner,
+        bidShares.prevOwner
     )
-}
-
-function findOrCreateUser(id: string): User {
-    let user = User.load(id);
-
-    if (user == null){
-        user = new User(id);
-        user.save();
-    }
-
-    return user as User;
-}
-
-function createMedia(id: string, owner: User, creator: User, prevOwner: User, contentURI: string, contentHash: Bytes, metadataURI: string, metadataHash: Bytes): Media {
-    let media = new Media(id);
-    media.owner = owner.id;
-    media.creator = creator.id;
-    media.prevOwner = prevOwner.id;
-    media.contentURI = contentURI;
-    media.contentHash = contentHash;
-    media.metadataURI = metadataURI;
-    media.metadataHash = metadataHash;
-    media.save();
-    return media;
 }

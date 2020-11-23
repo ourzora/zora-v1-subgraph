@@ -3,11 +3,17 @@ type Media @entity {
   owner: User!
   creator: User!
   prevOwner: User!
+
   approved: User
+
   contentHash: Bytes!
   metadataHash: Bytes!
   contentURI: String!
   metadataURI: String!
+
+  ownerBidShare: BigInt!
+  creatorBidShare: BigInt!
+  prevOwnerBidShare: BigInt!
 }
 
 type User @entity {
@@ -16,4 +22,5 @@ type User @entity {
   collection: [Media!] @derivedFrom(field: "owner")
   creations: [Media!] @derivedFrom(field: "creator")
 }
+
 
