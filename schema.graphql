@@ -3,6 +3,7 @@ type Media @entity {
   owner: User!
   creator: User!
   prevOwner: User!
+  approved: User
   contentHash: Bytes!
   metadataHash: Bytes!
   contentURI: String!
@@ -11,6 +12,7 @@ type Media @entity {
 
 type User @entity {
   id: ID!
+  authorizedUsers: [User!]
   collection: [Media!] @derivedFrom(field: "owner")
   creations: [Media!] @derivedFrom(field: "creator")
 }

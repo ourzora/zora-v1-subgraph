@@ -26,4 +26,8 @@ dataSources:
           handler: handleTokenURIUpdated
         - event: TokenMetadataURIUpdated(indexed uint256,address,string)
           handler: handleTokenMetadataURIUpdated
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
       file: ./src/mapping.ts
