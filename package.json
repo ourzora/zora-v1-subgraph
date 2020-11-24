@@ -5,6 +5,7 @@
     "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
     "create": "graph create sporkspatula/zora-v1-subgraph --node https://api.thegraph.com/deploy/",
     "create-local": "graph create sporkspatula/zora-v1-subgraph --node http://127.0.0.1:8020",
+    "test": "mocha -r ts-node/register test/*.test.ts",
     "codegen": "graph codegen --output-dir types",
     "build": "graph build",
     "deploy": "graph deploy sporkspatula/zora-v1-subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
@@ -15,10 +16,21 @@
     "@graphprotocol/graph-ts": "^0.18.0"
   },
   "dependencies": {
+    "@ethersproject/providers": "^5.0.16",
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.0.4",
+    "@zoralabs/media": "^1.0.0-rc3",
     "babel-polyfill": "^6.26.0",
     "babel-register": "^6.26.0",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "ethers": "^5.0.22",
+    "graphql-request": "^3.3.0",
+    "mocha": "^8.2.1",
     "truffle": "^5.0.4",
     "truffle-contract": "^4.0.5",
-    "truffle-hdwallet-provider": "^1.0.4"
+    "truffle-hdwallet-provider": "^1.0.4",
+    "ts-mocha": "^8.0.0",
+    "typescript": "^4.1.2"
   }
 }
