@@ -53,8 +53,14 @@ export function handleTransfer(event: Transfer): void {
     }
 
     let media = Media.load(tokenId);
+
+    if(toUser.id == zeroAddress){
+        media.prevOwner = zeroAddress;
+    } else {
+        media.prevOwner = fromUser.id;
+    }
+
     media.owner = toUser.id;
-    media.prevOwner = fromUser.id;
     media.approved = null;
     media.save();
 

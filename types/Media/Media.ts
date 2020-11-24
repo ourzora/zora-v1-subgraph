@@ -878,6 +878,36 @@ export class PermitCall__Outputs {
   }
 }
 
+export class RemoveAskCall extends ethereum.Call {
+  get inputs(): RemoveAskCall__Inputs {
+    return new RemoveAskCall__Inputs(this);
+  }
+
+  get outputs(): RemoveAskCall__Outputs {
+    return new RemoveAskCall__Outputs(this);
+  }
+}
+
+export class RemoveAskCall__Inputs {
+  _call: RemoveAskCall;
+
+  constructor(call: RemoveAskCall) {
+    this._call = call;
+  }
+
+  get tokenId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class RemoveAskCall__Outputs {
+  _call: RemoveAskCall;
+
+  constructor(call: RemoveAskCall) {
+    this._call = call;
+  }
+}
+
 export class RemoveBidCall extends ethereum.Call {
   get inputs(): RemoveBidCall__Inputs {
     return new RemoveBidCall__Inputs(this);
