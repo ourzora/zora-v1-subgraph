@@ -6,108 +6,17 @@ import {MarketFactory} from '@zoralabs/media/typechain/MarketFactory';
 import {MediaFactory} from '@zoralabs/media/typechain/MediaFactory';
 import { BigNumber, BigNumberish, Bytes } from 'ethers';
 import { ethers, Wallet } from 'ethers';
-import { sha256 } from 'ethers/lib/utils';
 import Decimal from '@zoralabs/media/utils/Decimal';
-import { randomBytes } from 'crypto';
 import system from 'system-commands';
-import {exec} from 'child_process';
 import axiosRetry, {isNetworkError} from "axios-retry";
 import axios from 'axios';
+import {Media, MediaQueryResponse, UserQueryResponse} from "./types";
+import {mediaByIdQuery, userByIdQuery} from "./queries";
+import {exponentialDelay, delay, randomHashBytes} from "./utils";
 
 axiosRetry(axios, { retryDelay: exponentialDelay, retries: 100, retryCondition: isNetworkError} );
 
-function exponentialDelay(retryNumber: number){
-    const delay = Math.pow(2, retryNumber) * 1000;
-    const randomSum = delay * 0.2 * Math.random(); // 0-20% of the delay
-    return delay + randomSum;
-}
-
-function mediaByIdQuery(id: string): string {
-    return gql`
-    {
-        media(id: "${id}") {
-            id
-            metadataURI
-            contentURI
-            contentHash
-            metadataHash
-            owner {
-              id
-            }
-            creator {
-              id
-            }
-            prevOwner {
-              id
-            }
-            approved {
-              id
-            }
-        }
-    }
-    `
-}
-
-function userByIdQuery(id: string): string {
-    return gql`
-        {
-            user(id: "${id}") {
-              id
-              creations {
-                id
-              }
-              collection{
-                id
-              }
-            }
-        }
-    `
-}
-
 jest.setTimeout(1000000);
-
-interface User {
-    id: string;
-    creations: Array<Media>;
-    collection: Array<Media>;
-}
-
-interface UsersQueryResponse {
-    users: Array<User>;
-}
-
-interface UserQueryResponse {
-    user: User;
-}
-
-interface Media {
-    id: string;
-    contentHash: string;
-    contentURI: string;
-    metadataHash: string;
-    metadataURI: string;
-    creator: Media,
-    owner: Media,
-    prevOwner: Media,
-    approved: User,
-}
-
-interface MediaQueryResponse{
-    media: Media;
-}
-
-interface MediasQueryResponse {
-    medias: Array<Media>;
-}
-
-async function randomHashBytes(): Promise<Bytes> {
-   return ethers.utils.randomBytes(32);
-}
-
-function delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
-}
-
 const gqlURL = "http://127.0.0.1:8000/subgraphs/name/sporkspatula/zora-v1-subgraph";
 const pathToGraphNode = '/Users/breck/zora/graph-node/docker';
 //const pathToSubgraph = '/Users/breck/zora/zora-v1-subgraph';
@@ -172,6 +81,24 @@ describe("Media", async () => {
     async function approve(wallet: Wallet, tokenId: BigNumber, to: string){
         const media = await MediaFactory.connect(mediaAddress, wallet);
         await media.approve(to, tokenId);
+        await delay(5000);
+    }
+
+    async function updateTokenURI(wallet: Wallet, tokenId: BigNumber, uri: string){
+        const media = await MediaFactory.connect(mediaAddress, wallet);
+        await media.updateTokenURI(tokenId, uri);
+        await delay(5000);
+    }
+
+    async function updateTokenMetadataURI(wallet: Wallet, tokenId: BigNumber, uri: string){
+        const media = await MediaFactory.connect(mediaAddress, wallet);
+        await media.updateTokenMetadataURI(tokenId, uri);
+        await delay(5000);
+    }
+
+    async function setApprovalForAll(wallet: Wallet, operator: string, approved: boolean){
+        const media = await MediaFactory.connect(mediaAddress, wallet);
+        await media.setApprovalForAll(operator, approved);
         await delay(5000);
     }
 
@@ -362,28 +289,108 @@ describe("Media", async () => {
             expect(media.owner.id).toBe(ethers.constants.AddressZero);
         });
     })
-    //
-    // describe("#updateTokenURI", async () => {
-    //     it("", async () => {
-    //
-    //     });
-    // })
-    //
-    // describe("#updateTokenMetadataURI", async () => {
-    //     it("", async () => {
-    //
-    //     });
-    // })
-    // describe("#approve", async () => {
-    //     it("", async () => {
-    //
-    //     });
-    // })
-    //
-    // describe("#setApprovalForAll", async () => {
-    //     it("", async () => {
-    //
-    //     });
-    // })
+
+    describe("#updateTokenURI", async () => {
+        it("should correctly update state when token uri is updated", async () => {
+            contentHash = await randomHashBytes();
+            metadataHash = await randomHashBytes();
+            // mint (transfer from 0x000 to address)
+            await mint(creatorWallet, contentHash, metadataHash);
+            let mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
+            let media = mediaResponse.media;
+
+            expect(media.id).toBe("0");
+            expect(media.contentURI).toBe("example.com");
+
+            await updateTokenURI(creatorWallet, BigNumber.from(0), "blah blah");
+
+            mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
+            media = mediaResponse.media;
+
+            expect(media.id).toBe("0");
+            expect(media.contentURI).toBe("blah blah");
+        });
+    })
+    describe("#updateTokenMetadataURI", async () => {
+        it("should correctly update state when metadata uri is updated", async () => {
+            contentHash = await randomHashBytes();
+            metadataHash = await randomHashBytes();
+            await mint(creatorWallet, contentHash, metadataHash);
+            let mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
+            let media = mediaResponse.media;
+
+            expect(media.id).toBe("0");
+            expect(media.metadataURI).toBe("metadata.com");
+
+            await updateTokenMetadataURI(creatorWallet, BigNumber.from(0), "blah blah");
+
+            mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
+            media = mediaResponse.media;
+
+            expect(media.id).toBe("0");
+            expect(media.metadataURI).toBe("blah blah");
+        });
+    })
+    describe("#approve", async () => {
+        it("it should correctly save the approval", async () => {
+            contentHash = await randomHashBytes();
+            metadataHash = await randomHashBytes();
+
+            await mint(creatorWallet, contentHash, metadataHash);
+            let mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
+            let media = mediaResponse.media;
+
+            expect(media.id).toBe("0");
+            expect(media.approved).toBeNull();
+
+            await approve(creatorWallet, BigNumber.from(0), otherWallet.address);
+            mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
+            media = mediaResponse.media;
+
+            expect(media.id).toBe("0");
+            expect(media.approved.id).toBe(otherWallet.address.toLowerCase());
+        });
+    })
+
+    describe("#setApprovalForAll", async () => {
+        it("should correctly save the approval for all", async () => {
+            contentHash = await randomHashBytes();
+            metadataHash = await randomHashBytes();
+
+            await mint(creatorWallet, contentHash, metadataHash);
+
+            let otherContentHash = await randomHashBytes();
+            let otherMetadataHash = await randomHashBytes();
+
+            await mint(otherWallet, otherContentHash, otherMetadataHash);
+
+            await setApprovalForAll(creatorWallet, anotherWallet.address, true);
+
+            // approval for new address
+            let creatorUserResponse: UserQueryResponse = await request(gqlURL, userByIdQuery(creatorWallet.address.toLowerCase()));
+            let creatorUser = creatorUserResponse.user;
+            expect(creatorUser.id).toBe(creatorWallet.address.toLowerCase());
+            expect(creatorUser.authorizedUsers.length).toBe(1);
+            expect(creatorUser.authorizedUsers[0].id).toBe(anotherWallet.address.toLowerCase());
+
+            // approval for all for existing address
+            await setApprovalForAll(creatorWallet, otherWallet.address, true);
+            creatorUserResponse = await request(gqlURL, userByIdQuery(creatorWallet.address.toLowerCase()));
+            creatorUser = creatorUserResponse.user;
+            expect(creatorUser.id).toBe(creatorWallet.address.toLowerCase());
+            expect(creatorUser.authorizedUsers.length).toBe(2);
+            expect(creatorUser.authorizedUsers[1].id).toBe(anotherWallet.address.toLowerCase());
+
+            // approval for all revoked for existing address
+            await setApprovalForAll(creatorWallet, otherWallet.address, false);
+            creatorUserResponse = await request(gqlURL, userByIdQuery(creatorWallet.address.toLowerCase()));
+            creatorUser = creatorUserResponse.user;
+            expect(creatorUser.id).toBe(creatorWallet.address.toLowerCase());
+            expect(creatorUser.authorizedUsers.length).toBe(1);
+            expect(creatorUser.authorizedUsers[0].id).toBe(anotherWallet.address.toLowerCase());
+
+            // approval for all revoked for non existant address -- this might break stuff
+        });
+    })
 
 })
