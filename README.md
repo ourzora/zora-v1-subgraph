@@ -18,9 +18,28 @@ git clone https://github.com/ourzora/invert.git
 yarn && yarn chain
 ```
 
+checkout breck/scripts branch
+
+```
+git fetch
+git checkout breck/scripts
+```
+
+Deploy market and media contracts.
+
+```
+echo "{}" > addresses/50.json
+```
+
+```
+yarn deploy --chainId 50
+```
+
 ### 3. Setup the Graph-Node
 
 In a separate terminal: 
+
+Clone the graph-node repository.
 
 ```
 git clone https://github.com/graphprotocol/graph-node.git
@@ -31,6 +50,10 @@ Edit the docker-compose.yaml to include your local ganache instance.
 ```
 cd docker
 ```
+
+Copy / Paste this replacing the existing docker-compose.yaml 
+
+THis is telling the graph node to connect to 
 
 ```yaml
 version: '3'
@@ -73,7 +96,44 @@ services:
       - ./data/postgres:/var/lib/postgresql/data
 ```
 
-### 6. Run Tests
+### 4. Create and Deploy Subgraph
+
+In a new terminal in this directory run:
+
+```
+yarn create-local
+```
+
+```
+yarn deploy-local
+```
+
+### 5. Add some data to graphql
+
+In order to have your subgraph begin indexing data, we need to interact with our contracts running on ganache.
+In the invert directory there is a file `scripts/media.ts` that contains a cli for doing all of the different contract
+interactions you may want.
+
+You can run doing this: 
+
+```
+yarn ts-node scripts/media.ts --chainId 50 --funcName mint
+```
+
+
+## Run Tests
+
+1. Run blockchain locally using invert mnuemonic
+
+```
+cd ${PATHTOINVERT}
+```
+
+```
+yarn chain
+```
+
+2. Run Tests
 
 ```
 yarn test
