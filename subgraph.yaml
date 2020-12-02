@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Media
-    network: ganache
+    network: mainnet
     source:
       address: "0x1D7022f5B17d2F8B695918FB48fa1089C9f85401"
       abi: Media
@@ -35,7 +35,7 @@ dataSources:
       file: ./src/media.ts
   - kind: ethereum/contract
     name: Market
-    network: ganache
+    network: mainnet
     source:
       address: "0x1dC4c1cEFEF38a777b15aA20260a54E584b16C48"
       abi: Market
@@ -52,4 +52,14 @@ dataSources:
       eventHandlers:
         - event: BidShareUpdated(indexed uint256,((uint256),(uint256),(uint256)))
           handler: handleBidShareUpdated
+        - event: AskCreated(indexed uint256,(uint256,address,(uint256)))
+          handler: handleAskCreated
+        - event: AskRemoved(indexed uint256,(uint256,address,(uint256)))
+          handler: handleAskRemoved
+        - event: BidCreated(indexed uint256,(uint256,address,address,address,(uint256)))
+          handler: handleBidCreated
+        - event: BidRemoved(indexed uint256,(uint256,address,address,address,(uint256)))
+          handler: handleBidRemoved
+        - event: BidFinalized(indexed uint256,(uint256,address,address,address,(uint256)))
+          handler: handleBidFinalized
       file: ./src/market.ts

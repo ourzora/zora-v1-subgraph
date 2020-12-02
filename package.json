@@ -2,6 +2,9 @@
   "name": "zora-v1-subgraph",
   "version": "0.1.0",
   "scripts": {
+    "chain": "ganache-cli --networkId 50 --accounts 20 -e 10000000000 -l 10000000 -m 'concert load couple harbor equip island argue ramp clarify fence smart topic'",
+    "seed-graph": "ts-node scripts/seed",
+    "deploy-contracts": "ts-node scripts/deploy.ts",
     "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
     "create": "graph create sporkspatula/zora-v1-subgraph --node https://api.thegraph.com/deploy/",
     "create-local": "graph create sporkspatula/zora-v1-subgraph --node http://127.0.0.1:8020",
@@ -30,6 +33,7 @@
     "child-process": "^1.0.2",
     "ethers": "^5.0.22",
     "graphql-request": "^3.3.0",
+    "ipfs-core": "^0.3.0",
     "jest": "^26.6.3",
     "jest-serial-runner": "^1.1.0",
     "mocha": "^8.2.1",
@@ -39,7 +43,8 @@
     "truffle-hdwallet-provider": "^1.0.4",
     "ts-jest": "^26.4.4",
     "ts-mocha": "^8.0.0",
-    "typescript": "^4.1.2"
+    "typescript": "^4.1.2",
+    "uuid": "^8.3.1"
   },
   "jest": {
     "preset": "ts-jest"

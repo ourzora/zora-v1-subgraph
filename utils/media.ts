@@ -1,0 +1,106 @@
+import {Wallet} from "@ethersproject/wallet";
+import {MediaFactory} from "@zoralabs/media/dist/typechain/MediaFactory";
+import Decimal from "@zoralabs/media/dist/utils/Decimal";
+import {BigNumber, Bytes} from "ethers";
+
+export type MediaData = {
+    tokenURI: string;
+    metadataURI: string;
+    contentHash: Bytes;
+    metadataHash: Bytes;
+}
+
+export async function mint(
+    mediaAddress: string,
+    wallet: Wallet,
+    mediaData: MediaData
+) {
+    const media = await MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.mint(
+        mediaData,
+        {
+            creator: Decimal.new(10),
+            owner: Decimal.new(90),
+            prevOwner: Decimal.new(0),
+        }
+    )
+}
+
+export async function burn(mediaAddress: string, wallet: Wallet, tokenId: BigNumber){
+    const media = await MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.burn(tokenId);
+    console.log(tx);
+}
+
+export async function updateTokenURI(mediaAddress: string, wallet: Wallet, tokenId: BigNumber, tokenURI: string){
+    const media = await MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.updateTokenURI(tokenId, tokenURI);
+    console.log(tx);
+}
+
+export async function updateTokenMetadataURI(mediaAddress: string, wallet: Wallet, tokenId: BigNumber, tokenMetadataURI: string){
+    const media = await MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.updateTokenMetadataURI(tokenId, tokenMetadataURI);
+    console.log(tx);
+}
+
+export async function totalSupply(mediaAddress: string, wallet: Wallet){
+    const media = MediaFactory.connect(mediaAddress, wallet);
+    return await media.totalSupply();
+}
+
+export async function approve(mediaAddress: string, wallet: Wallet, tokenId: BigNumber, toAddress: string){
+    const media = MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.approve(toAddress, tokenId);
+    console.log(tx);
+}
+
+export async function approveForAll(mediaAddress: string, wallet: Wallet, operator: string, approved: boolean) {
+    const media = MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.setApprovalForAll(operator, approved);
+    console.log(tx);
+}
+
+export async function transfer(mediaAddress: string, wallet: Wallet, tokenId: BigNumber, to: string): Promise<string>{
+    const media = MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.transferFrom(wallet.address, to, tokenId);
+    return tx.hash;
+}
+
+export async function setAsk(mediaAddress: string, wallet: Wallet, tokenId: BigNumber){
+    let defaultAsk = {
+        currency: "eF77ce798401dAc8120F77dc2DebD5455eDdACf9", // DAI
+        amount: Decimal.new(10).value,
+        sellOnShare: Decimal.new(10),
+    }
+
+    const media = await MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.setAsk(tokenId, defaultAsk);
+    console.log(tx);
+}
+
+export async function removeAsk(mediaAddress: string, wallet: Wallet, tokenId: BigNumber){
+    const media = await MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.removeAsk(tokenId);
+    console.log(tx);
+}
+
+export async function setBid(mediaAddress: string, wallet: Wallet, tokenId: BigNumber, recipient: string){
+    let defaultBid = {
+        currency: "D1aE64401d65E9B0d1bF7E08Fbf75bb2F26eF70a",
+        amount: 9,
+        sellOnShare: Decimal.new(9),
+        recipient: recipient,
+        bidder: wallet.address
+    }
+
+    const media = MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.setBid(tokenId, defaultBid);
+    console.log(tx);
+}
+
+export async function removeBid(mediaAddress: string, wallet:Wallet, tokenId: BigNumber){
+    const media = MediaFactory.connect(mediaAddress, wallet);
+    const tx = await media.removeBid(tokenId);
+    console.log(tx);
+}
