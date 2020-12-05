@@ -24,12 +24,15 @@ import {exponentialDelay, delay, randomHashBytes, toNumWei} from "./utils";
 import set = Reflect.set;
 import {BaseErc20Factory} from "@zoralabs/media/dist/typechain";
 import {approveCurrency, mintCurrency} from "../utils/currency";
+import dotenv from 'dotenv';
+
 
 axiosRetry(axios, { retryDelay: exponentialDelay, retries: 100, retryCondition: isNetworkError} );
-
+dotenv.config({path: '.env.local'});
 jest.setTimeout(1000000);
+
 const gqlURL = "http://127.0.0.1:8000/subgraphs/name/sporkspatula/zora-v1-subgraph";
-const pathToGraphNode = '/Users/breck/zora/graph-node/docker';
+const pathToGraphNode = process.env.PATH_TO_GRAPH;
 
 type SolidityAsk = {
     currency: string;
@@ -215,8 +218,8 @@ describe("Media", async () => {
 
         // restart graph-node
         console.log("Resetting Graph-Node");
-        await system(`cd ${pathToGraphNode} && docker-compose down && rm -rf ./data`);
-        await system(`cd ${pathToGraphNode} && docker-compose up -d`);
+        await system(`cd ${pathToGraphNode.concat("/docker")} && docker-compose down && rm -rf ./data`);
+        await system(`cd ${pathToGraphNode.concat("/docker")} && docker-compose up -d`);
         console.log("Successfully Reset Graph-Node");
 
         console.log("Waiting for Graph to startup before deploying subgraph")

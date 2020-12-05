@@ -36,6 +36,7 @@ Hint:
 - Copy / Paste `http://0.0.0.0:8545` as RPC_ENDPOINT
 - Copy / Paste the first Private Key from `@zoralabs/media/dist/utils/generatedWallets` as PK.
 - Set `MEDIA_ADDRESS` After Deploying. It will exist in `addresses/50.json`;
+- Set `PATH_TO_GRAPH` as the path to the dir of the `graph-node` repository you just cloned.
 
 ```
 yarn deploy-contracts --chainId 50
