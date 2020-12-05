@@ -54,7 +54,7 @@ yarn deploy-local
 ### 5. Seed Contract with Newly Minted Media
 
 ```
-yarn seed-graph --chainId
+yarn seed-graph --chainId 50
 ```
 
 ### 6. Voila
