@@ -1,9 +1,7 @@
 import {Media, User} from "../types/schema";
 import {Media as MediaContract, Approval, ApprovalForAll, Transfer, TokenURIUpdated, TokenMetadataURIUpdated} from "../types/Media/Media";
 import {Address, Bytes, BigInt, log} from "@graphprotocol/graph-ts";
-import {findOrCreateUser, createMedia, fetchMediaBidShares, BidShares} from './helpers';
-
-const zeroAddress = "0x0000000000000000000000000000000000000000";
+import {findOrCreateUser, createMedia, fetchMediaBidShares, BidShares, zeroAddress} from './helpers';
 
 export function handleTokenURIUpdated(event: TokenURIUpdated): void {
     let tokenId = event.params._tokenId.toString()
@@ -56,6 +54,8 @@ export function handleTransfer(event: Transfer): void {
 
     if(toUser.id == zeroAddress){
         media.prevOwner = zeroAddress;
+        media.burnedAtTimeStamp = event.block.timestamp;
+        media.burnedAtBlockNumber = event.block.number;
     } else {
         media.prevOwner = fromUser.id;
     }
@@ -64,7 +64,7 @@ export function handleTransfer(event: Transfer): void {
     media.approved = null;
     media.save();
 
-    log.info(`Completed for Transfer Event of tokenId: {}, from: {}. to: {}`, [tokenId, fromAddr, toAddr])
+    log.info(`Completed handler for Transfer Event of tokenId: {}, from: {}. to: {}`, [tokenId, fromAddr, toAddr])
 }
 
 export function handleApproval(event: Approval): void {
@@ -117,7 +117,7 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
 }
 
 function handleMint(event: Transfer): void {
-    let creator = findOrCreateUser(event.params.to.toHex());
+    let creator = findOrCreateUser(event.params.to.toHexString());
     let tokenId = event.params.tokenId;
 
     let mediaContract = MediaContract.bind(event.address);
@@ -140,6 +140,8 @@ function handleMint(event: Transfer): void {
         metadataHash,
         bidShares.creator,
         bidShares.owner,
-        bidShares.prevOwner
+        bidShares.prevOwner,
+        event.block.timestamp,
+        event.block.number
     )
 }

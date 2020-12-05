@@ -3,7 +3,6 @@ type Media @entity {
   owner: User!
   creator: User!
   prevOwner: User!
-
   approved: User
 
   contentHash: Bytes!
@@ -14,13 +13,89 @@ type Media @entity {
   ownerBidShare: BigInt!
   creatorBidShare: BigInt!
   prevOwnerBidShare: BigInt!
+
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+
+  burnedAtTimeStamp: BigInt
+  burnedAtBlockNumber: BigInt
+
+  currentAsk: Ask @derivedFrom(field: "media")
+  currentBids: [Bid!] @derivedFrom(field: "media")
+
+  inactiveAsks: [InactiveAsk!] @derivedFrom(field: "media")
+  inactiveBids: [InactiveBid!] @derivedFrom(field: "media")
 }
 
 type User @entity {
   id: ID!
   authorizedUsers: [User!]
-  collection: [Media!] @derivedFrom(field: "owner")
-  creations: [Media!] @derivedFrom(field: "creator")
+  collection: [Media!]! @derivedFrom(field: "owner")
+  creations: [Media!]! @derivedFrom(field: "creator")
+  currentBids: [Bid!] @derivedFrom(field: "bidder")
 }
+
+type Ask @entity {
+  id: ID!
+  media: Media!
+  amount: BigInt!
+  currency: String!
+  sellOnShare: BigInt!
+  owner: User!
+
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+}
+
+type Bid @entity {
+  id: ID!
+  media: Media!
+  amount: BigInt!
+  currency: String!
+  sellOnShare: BigInt!
+  bidder: User!
+  recipient: User!
+
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+}
+
+enum MarketEventType {
+  Finalized
+  Removed
+}
+
+type InactiveBid @entity {
+  id: ID!
+  media: Media!
+  type: MarketEventType!
+  amount: BigInt!
+  currency: String!
+  sellOnShare: BigInt!
+  bidder: User!
+  recipient: User!
+
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+}
+
+type InactiveAsk @entity {
+  id: ID!
+  media: Media!
+  type: MarketEventType!
+  amount: BigInt!
+  currency: String!
+  sellOnShare: BigInt!
+  owner: User!
+
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+}
+
+
+
+
+
+
 
 

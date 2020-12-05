@@ -37,10 +37,12 @@ node_modules/
 jspm_packages/
 
 # TypeScript v1 declaration files
-typings/
+types/
 
 # Build
 build/
+
+bin/
 
 # Optional npm cache directory
 .npm
@@ -65,3 +67,6 @@ build/
 
 # idea
 .idea
+
+# .env
+.env.local

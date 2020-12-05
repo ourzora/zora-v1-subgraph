@@ -1,4 +1,6 @@
-import {Bytes, ethers} from "ethers";
+import {Bytes, ethers, BigNumber} from "ethers";
+import { formatUnits } from '@ethersproject/units';
+
 
 export function exponentialDelay(retryNumber: number){
     const delay = Math.pow(2, retryNumber) * 1000;
@@ -12,4 +14,8 @@ export async function randomHashBytes(): Promise<Bytes> {
 
 export function delay(ms: number) {
     return new Promise( resolve => setTimeout(resolve, ms) );
+}
+
+export function toNumWei(val: BigNumber) {
+    return parseFloat(formatUnits(val, 'wei'));
 }
