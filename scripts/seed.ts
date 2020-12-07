@@ -105,8 +105,8 @@ async function startSeed(){
       const metadataCID  = await ipfs.add(metadataContent, { pin: true });
 
       let mediaData = {
-        tokenURI: contentCID.cid.toString(),
-        metadataURI: metadataCID.cid.toString(),
+        tokenURI: "https://ipfs.io/ipfs/".concat(contentCID.cid.toString()),
+        metadataURI: "https://ipfs.io/ipfs/".concat(metadataCID.cid.toString()),
         contentHash: Uint8Array.from(contentHash),
         metadataHash: Uint8Array.from(metadataHash)
       }

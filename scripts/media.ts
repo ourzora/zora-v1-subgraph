@@ -16,6 +16,7 @@ import {
   updateTokenMetadataURI,
   totalSupply
 } from "../utils/media";
+import {promises as fs} from "fs";
 
 
 async function start(){
@@ -32,6 +33,14 @@ async function start(){
   const path = `${process.cwd()}/.env${
     args.chainId === 1 ? '.prod' : args.chainId === 4 ? '.dev' : '.local'
   }`;
+
+  const sharedAddressPath = `${process.cwd()}/addresses/${args.chainId}.json`;
+  // @ts-ignore
+  const addressBook = JSON.parse(await fs.readFile(sharedAddressPath));
+
+  if (addressBook.media == null) {
+    throw new Error("media address not specified in addressbook");
+  }
 
   await require('dotenv').config({ path });
   const provider = new JsonRpcProvider(process.env.RPC_ENDPOINT);
@@ -56,7 +65,7 @@ async function start(){
   // switch statement for function with args
   switch (args.funcName){
     case 'mint': {
-      const supply = (await totalSupply(process.env.MEDIA_ADDRESS, wallet1)).toNumber() + 1;
+      const supply = (await totalSupply(addressBook.media, wallet1)).toNumber() + 1;
 
       const metadata = `metadatas:${supply}`;
       console.log("Metadata:", metadata);
@@ -79,7 +88,7 @@ async function start(){
         metadataHash: metadataHashBytes
       }
 
-      await mint(process.env.MEDIA_ADDRESS, wallet1, mediaData);
+      await mint(addressBook.media, wallet1, mediaData);
       break;
     }
     case 'burn': {
@@ -90,7 +99,7 @@ async function start(){
       const tokenId = BigNumber.from(args.tokenId);
       console.log(tokenId)
 
-      await burn(process.env.MEDIA_ADDRESS, wallet1, tokenId);
+      await burn(addressBook.media, wallet1, tokenId);
       break;
     }
     case 'updateTokenURI': {
@@ -105,7 +114,7 @@ async function start(){
 
       const tokenURI = args.uri.toString();
 
-      await updateTokenURI(process.env.MEDIA_ADDRESS, wallet1, tokenId, tokenURI);
+      await updateTokenURI(addressBook.media, wallet1, tokenId, tokenURI);
       break;
     }
     case 'updateTokenMetadataURI': {
@@ -120,7 +129,7 @@ async function start(){
 
       const tokenMetadataURI = args.uri.toString();
 
-      await updateTokenMetadataURI(process.env.MEDIA_ADDRESS, wallet1, tokenId, tokenMetadataURI);
+      await updateTokenMetadataURI(addressBook.media, wallet1, tokenId, tokenMetadataURI);
       break;
     }
     case 'approve': {
@@ -136,7 +145,7 @@ async function start(){
 
       const toAddress = args.to.toString();
       console.log(toAddress);
-      await approve(process.env.MEDIA_ADDRESS, wallet1, tokenId, toAddress);
+      await approve(addressBook.media, wallet1, tokenId, toAddress);
       break;
     }
     case 'approveForAll': {
@@ -157,7 +166,7 @@ async function start(){
         approved = true;
       }
 
-      await approveForAll(process.env.MEDIA_ADDRESS, wallet1, operator, approved);
+      await approveForAll(addressBook.media, wallet1, operator, approved);
       break;
     }
     case 'transfer': {
@@ -173,7 +182,7 @@ async function start(){
 
       const to = args.to;
 
-      let txHash = await transfer(process.env.MEDIA_ADDRESS, wallet1, tokenId, to);
+      let txHash = await transfer(addressBook.media, wallet1, tokenId, to);
       let receipt = await provider.getTransactionReceipt(txHash);
       receipt.logs.forEach((log) =>{
         console.log(log);
@@ -188,7 +197,7 @@ async function start(){
 
       const tokenId = BigNumber.from(args.tokenId);
 
-      await setAsk(process.env.MEDIA_ADDRESS, wallet1, tokenId);
+      await setAsk(addressBook.media, wallet1, tokenId);
       break;
     }
     case 'removeAsk': {
@@ -197,7 +206,7 @@ async function start(){
       }
       const tokenId = BigNumber.from(args.tokenId);
 
-      await removeAsk(process.env.MEDIA_ADDRESS, wallet1, tokenId);
+      await removeAsk(addressBook.media, wallet1, tokenId);
       break;
     }
     case `setBid`: {
@@ -207,7 +216,7 @@ async function start(){
 
       const tokenId = BigNumber.from(args.tokenId);
 
-      await setBid(process.env.MEDIA_ADDRESS, wallet2, tokenId, wallet1.address);
+      await setBid(addressBook.media, wallet2, tokenId, wallet1.address);
       break;
     }
     case `removeBid`: {
@@ -216,7 +225,7 @@ async function start(){
       }
 
       const tokenId = BigNumber.from(args.tokenId);
-      await removeBid(process.env.MEDIA_ADDRESS, wallet2, tokenId);
+      await removeBid(addressBook.media, wallet2, tokenId);
       break;
     }
   }
