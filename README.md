@@ -28,6 +28,13 @@ cd docker
 docker-compose up
 ```
 
+If for any reason you need to tear down the graph node. Make sure to also delete the data directory
+
+```
+docker-compose down
+rm -rf ./data
+```
+
 ### 3. Deploy Contracts to Local Blockchain
 
 Configure `.env.local`. Copy the fields from the `.env.example`.
@@ -35,7 +42,6 @@ Configure `.env.local`. Copy the fields from the `.env.example`.
 Hint: 
 - Copy / Paste `http://0.0.0.0:8545` as RPC_ENDPOINT
 - Copy / Paste the first Private Key from `@zoralabs/media/dist/utils/generatedWallets` as PK.
-- Set `MEDIA_ADDRESS` After Deploying. It will exist in `addresses/50.json`;
 - Set `PATH_TO_GRAPH` as the path to the dir of the `graph-node` repository you just cloned.
 
 ```
@@ -45,7 +51,7 @@ yarn deploy-contracts --chainId 50
 ### 4. Build and Deploy Subgraph to Local Graph Node
 
 ```
-yarn
+yarn codegen
 yarn build
 yarn create-local
 yarn deploy-local
