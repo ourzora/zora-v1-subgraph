@@ -1,7 +1,15 @@
 import {BidShareUpdated, AskCreated, AskRemoved, BidCreated, BidFinalized, BidRemoved} from '../types/Market/Market';
 import {BigDecimal, BigInt, log, store} from "@graphprotocol/graph-ts";
 import {Media, User, Ask, Bid} from "../types/schema";
-import {createAsk, createBid, createInactiveAsk, createInactiveBid, findOrCreateUser, zeroAddress} from "./helpers";
+import {
+    createAsk,
+    createBid,
+    createInactiveAsk,
+    createInactiveBid,
+    findOrCreateCurrency,
+    findOrCreateUser,
+    zeroAddress
+} from "./helpers";
 
 const REMOVED = "Removed";
 const FINALIZED = "Finalized";
@@ -36,11 +44,13 @@ export function handleAskCreated(event: AskCreated): void {
         log.error("Media is null for tokenId: {}", [tokenId]);
     }
 
+    let currency = findOrCreateCurrency(onchainAsk.currency.toHexString());
     let askId = media.id.concat("-").concat(media.owner);
+
     createAsk(
         askId,
         onchainAsk.amount,
-        onchainAsk.currency.toHexString(),
+        currency,
         onchainAsk.sellOnShare.value,
         media as Media,
         event.block.timestamp,
@@ -48,7 +58,6 @@ export function handleAskCreated(event: AskCreated): void {
     );
 
     log.info(`Completed handler for AskCreated Event for tokenId: {}, ask: {}`, [tokenId, onchainAsk.toString()]);
-
 }
 
 export function handleAskRemoved(event: AskRemoved): void {
@@ -68,7 +77,8 @@ export function handleAskRemoved(event: AskRemoved): void {
         if (media == null) {
             log.error("Media is null for tokenId: {}", [tokenId]);
         }
-        
+
+        let currency = findOrCreateCurrency(onChainAsk.currency.toHexString());
 
         askId = tokenId.concat("-").concat(media.owner);
         let ask = Ask.load(askId);
@@ -82,7 +92,7 @@ export function handleAskRemoved(event: AskRemoved): void {
             media as Media,
             REMOVED,
             ask.amount,
-            ask.currency,
+            currency,
             ask.sellOnShare,
             ask.owner,
             event.block.timestamp,
@@ -111,10 +121,12 @@ export function handleBidCreated(event: BidCreated): void {
     let bidder = findOrCreateUser(bid.bidder.toHexString())
     let recipient = findOrCreateUser(bid.recipient.toHexString());
 
+    let currency = findOrCreateCurrency(bid.currency.toHexString());
+
     createBid(
         bidId,
         bid.amount,
-        bid.currency.toHexString(),
+        currency,
         bid.sellOnShare.value,
         bidder,
         recipient,
@@ -122,6 +134,10 @@ export function handleBidCreated(event: BidCreated): void {
         event.block.timestamp,
         event.block.number
     )
+
+    // Update Currency Liquidity
+    currency.liquidity = currency.liquidity.plus(bid.amount);
+    currency.save();
 
     log.info(`Completed handler for BidCreated Event for tokenId: {}, bid: {}`, [tokenId, bid.toString()]);
 }
@@ -147,7 +163,7 @@ export function handleBidRemoved(event: BidRemoved): void {
     let inactiveBidId = event.transaction.hash.toHexString().concat("-").concat(event.transactionLogIndex.toString());
     let bidder = findOrCreateUser(onChainBid.bidder.toHexString())
     let recipient = findOrCreateUser(onChainBid.recipient.toHexString());
-
+    let currency = findOrCreateCurrency(onChainBid.currency.toHexString());
 
     // Create Inactive Bid
     createInactiveBid(
@@ -155,13 +171,17 @@ export function handleBidRemoved(event: BidRemoved): void {
         REMOVED,
         media as Media,
         onChainBid.amount,
-        onChainBid.currency.toHexString(),
+        currency,
         onChainBid.sellOnShare.value,
         bidder,
         recipient,
         event.block.timestamp,
         event.block.number
     );
+
+    // Update Currency Liquidity
+    currency.liquidity = currency.liquidity.minus(bid.amount);
+    currency.save();
 
     // Remove Bid
     store.remove('Bid', bidId);
@@ -189,6 +209,8 @@ export function handleBidFinalized(event: BidFinalized): void {
 
     let bidder = findOrCreateUser(onChainBid.bidder.toHexString())
     let recipient = findOrCreateUser(onChainBid.recipient.toHexString());
+    let currency = findOrCreateCurrency(onChainBid.currency.toHexString());
+
 
     // Create Inactive Bid
     createInactiveBid(
@@ -196,13 +218,17 @@ export function handleBidFinalized(event: BidFinalized): void {
         FINALIZED,
         media as Media,
         onChainBid.amount,
-        onChainBid.currency.toHexString(),
+        currency,
         onChainBid.sellOnShare.value,
         bidder,
         recipient,
         event.block.timestamp,
         event.block.number
     );
+
+    // Update Currency Liquidity
+    currency.liquidity = currency.liquidity.minus(bid.amount);
+    currency.save();
 
     // Remove Bid
     store.remove('Bid', bidId);

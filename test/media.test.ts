@@ -17,9 +17,19 @@ import {
     InactiveBidsQueryResponse,
     Media,
     MediaQueryResponse,
-    UserQueryResponse
+    UserQueryResponse,
+    Currency,
+    CurrencyQueryResponse
 } from "./types";
-import {askByIdQuery, bidByIdQuery, inactiveBidsByMediaIdQuery, inactiveAsksByMediaIdQuery, mediaByIdQuery, userByIdQuery} from "./queries";
+import {
+    askByIdQuery,
+    bidByIdQuery,
+    inactiveBidsByMediaIdQuery,
+    inactiveAsksByMediaIdQuery,
+    mediaByIdQuery,
+    userByIdQuery,
+    currencyByIdQuery
+} from "./queries";
 import {exponentialDelay, delay, randomHashBytes, toNumWei} from "./utils";
 import set = Reflect.set;
 import {BaseErc20Factory} from "@zoralabs/media/dist/typechain";
@@ -518,7 +528,7 @@ describe("Media", async () => {
             expect(ask.id).toBe(askId);
             expect(ask.owner.id).toBe(creatorWallet.address.toLowerCase());
             expect(ask.sellOnShare).toBe(toNumWei(onChainAsk.sellOnShare.value).toString());
-            expect(ask.currency).toBe(onChainAsk.currency.toLowerCase());
+            expect(ask.currency.id).toBe(onChainAsk.currency.toLowerCase());
             expect(ask.amount).toBe(toNumWei(onChainAsk.amount).toString());
             expect(ask.createdAtTimestamp).not.toBeNull();
             expect(ask.createdAtBlockNumber).not.toBeNull();
@@ -554,7 +564,7 @@ describe("Media", async () => {
             expect(inactiveAsks.length).toBe(1);
             expect(inactiveAsks[0].media.id).toBe("0");
             expect(inactiveAsks[0].amount).toBe(toNumWei(onChainAsk.amount).toString());
-            expect(inactiveAsks[0].currency).toBe(onChainAsk.currency.toLowerCase());
+            expect(inactiveAsks[0].currency.id).toBe(onChainAsk.currency.toLowerCase());
             expect(inactiveAsks[0].sellOnShare).toBe(toNumWei(onChainAsk.sellOnShare.value).toString());
             expect(inactiveAsks[0].owner.id).toBe(creatorWallet.address.toLowerCase());
 
@@ -588,6 +598,11 @@ describe("Media", async () => {
             await setAsk(creatorWallet, 0, onChainAsk);
             await setBid(otherWallet, 0, onChainBid);
 
+            let currencyResponse: CurrencyQueryResponse = await request(gqlURL, currencyByIdQuery(currencyAddress.toLowerCase()));
+            let currency = currencyResponse.currency;
+            expect(currency.id).toBe(currencyAddress.toLowerCase());
+            expect(currency.liquidity).toBe(toNumWei(onChainBid.amount).toString());
+
             let bidId = "0".concat("-").concat(otherWallet.address.toLowerCase());
 
             let bidResponse: BidQueryResponse = await request(gqlURL, bidByIdQuery(bidId));
@@ -596,7 +611,7 @@ describe("Media", async () => {
             expect(bid).not.toBeNull();
             expect(bid.id).toBe(bidId);
             expect(bid.amount).toBe(toNumWei(onChainBid.amount).toString());
-            expect(bid.currency).toBe(onChainBid.currency.toLowerCase());
+            expect(bid.currency.id).toBe(onChainBid.currency.toLowerCase());
             expect(bid.sellOnShare).toBe(toNumWei(onChainBid.sellOnShare.value).toString());
             expect(bid.createdAtBlockNumber).not.toBeNull();
             expect(bid.createdAtTimestamp).not.toBeNull();
@@ -611,7 +626,7 @@ describe("Media", async () => {
             expect(bid).not.toBeNull();
             expect(bid.id).toBe(bidId);
             expect(bid.amount).toBe(toNumWei(higherOnChainBid.amount).toString());
-            expect(bid.currency).toBe(higherOnChainBid.currency.toLowerCase());
+            expect(bid.currency.id).toBe(higherOnChainBid.currency.toLowerCase());
             expect(bid.sellOnShare).toBe(toNumWei(higherOnChainBid.sellOnShare.value).toString());
             expect(bid.createdAtBlockNumber).not.toBeNull();
             expect(bid.createdAtTimestamp).not.toBeNull();
@@ -622,7 +637,7 @@ describe("Media", async () => {
             expect(inactiveBids.length).toBe(1);
             expect(inactiveBids[0].media.id).toBe("0");
             expect(inactiveBids[0].amount).toBe(toNumWei(onChainBid.amount).toString());
-            expect(inactiveBids[0].currency).toBe(onChainBid.currency.toLowerCase());
+            expect(inactiveBids[0].currency.id).toBe(onChainBid.currency.toLowerCase());
             expect(inactiveBids[0].sellOnShare).toBe(toNumWei(onChainBid.sellOnShare.value).toString());
             expect(inactiveBids[0].bidder.id).toBe(onChainBid.bidder.toLowerCase());
             expect(inactiveBids[0].recipient.id).toBe(onChainBid.recipient.toLowerCase());
@@ -660,6 +675,11 @@ describe("Media", async () => {
             await mint(creatorWallet, contentHash, metadataHash);
             await setBid(otherWallet, 0, onChainBid);
 
+            let currencyResponse: CurrencyQueryResponse = await request(gqlURL, currencyByIdQuery(currencyAddress.toLowerCase()));
+            let currency = currencyResponse.currency;
+            expect(currency.id).toBe(currencyAddress.toLowerCase());
+            expect(currency.liquidity).toBe(toNumWei(onChainBid.amount).toString());
+
             let bidId = "0".concat("-").concat(otherWallet.address.toLowerCase());
             let bidResponse: BidQueryResponse = await request(gqlURL, bidByIdQuery(bidId));
             expect(bidResponse.bid).not.toBeNull();
@@ -668,18 +688,26 @@ describe("Media", async () => {
             bidResponse = await request(gqlURL, bidByIdQuery(bidId));
             expect(bidResponse.bid).toBeNull();
 
+            let newCurrencyResponse: CurrencyQueryResponse = await request(gqlURL, currencyByIdQuery(currencyAddress.toLowerCase()));
+            let newCurrency = newCurrencyResponse.currency;
+            expect(newCurrency.id).toBe(currencyAddress.toLowerCase());
+
+            let expectedLiquidity = BigNumber.from(currency.liquidity.toString()).sub(onChainBid.amount);
+            expect(BigNumber.from(newCurrency.liquidity.toString())).toMatchObject(expectedLiquidity);
+
             let inactiveBidsResponse: InactiveBidsQueryResponse = await request(gqlURL, inactiveBidsByMediaIdQuery("0"));
             let inactiveBids = inactiveBidsResponse.inactiveBids;
 
             expect(inactiveBids.length).toBe(1);
             expect(inactiveBids[0].media.id).toBe("0");
             expect(inactiveBids[0].amount).toBe(toNumWei(onChainBid.amount).toString());
-            expect(inactiveBids[0].currency).toBe(onChainBid.currency.toLowerCase());
+            expect(inactiveBids[0].currency.id).toBe(onChainBid.currency.toLowerCase());
             expect(inactiveBids[0].sellOnShare).toBe(toNumWei(onChainBid.sellOnShare.value).toString());
             expect(inactiveBids[0].bidder.id).toBe(onChainBid.bidder.toLowerCase());
             expect(inactiveBids[0].recipient.id).toBe(onChainBid.recipient.toLowerCase());
         })
     })
+
     describe("#acceptBid", async () => {
         it("should save the state properly", async () => {
             // it removes a bid and creates an InactiveBid
@@ -694,6 +722,11 @@ describe("Media", async () => {
             let bidResponse: BidQueryResponse = await request(gqlURL, bidByIdQuery(bidId));
             expect(bidResponse.bid).not.toBeNull();
 
+            let currencyResponse: CurrencyQueryResponse = await request(gqlURL, currencyByIdQuery(currencyAddress.toLowerCase()));
+            let currency = currencyResponse.currency;
+            expect(currency.id).toBe(currencyAddress.toLowerCase());
+            expect(currency.liquidity).toBe(toNumWei(onChainBid.amount).toString());
+
             await acceptBid(creatorWallet, 0, onChainBid);
 
             bidResponse = await request(gqlURL, bidByIdQuery(bidId));
@@ -705,7 +738,7 @@ describe("Media", async () => {
             expect(inactiveBids.length).toBe(1);
             expect(inactiveBids[0].media.id).toBe("0");
             expect(inactiveBids[0].amount).toBe(toNumWei(onChainBid.amount).toString());
-            expect(inactiveBids[0].currency).toBe(onChainBid.currency.toLowerCase());
+            expect(inactiveBids[0].currency.id).toBe(onChainBid.currency.toLowerCase());
             expect(inactiveBids[0].sellOnShare).toBe(toNumWei(onChainBid.sellOnShare.value).toString());
             expect(inactiveBids[0].bidder.id).toBe(onChainBid.bidder.toLowerCase());
             expect(inactiveBids[0].recipient.id).toBe(onChainBid.recipient.toLowerCase());
@@ -721,6 +754,13 @@ describe("Media", async () => {
             expect(media.inactiveBids.length).toBe(1);
             expect(media.currentAsk).toBeNull();
             expect(media.approved).toBeNull();
+
+            let newCurrencyResponse: CurrencyQueryResponse = await request(gqlURL, currencyByIdQuery(currencyAddress.toLowerCase()));
+            let newCurrency = newCurrencyResponse.currency;
+            expect(newCurrency.id).toBe(currencyAddress.toLowerCase());
+
+            let expectedLiquidity = BigNumber.from(currency.liquidity.toString()).sub(onChainBid.amount);
+            expect(BigNumber.from(newCurrency.liquidity.toString())).toMatchObject(expectedLiquidity);
         })
     })
 })

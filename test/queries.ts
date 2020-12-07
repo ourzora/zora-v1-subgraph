@@ -66,7 +66,9 @@ export function askByIdQuery(id: string): string {
                   id
                 }
                 amount
-                currency
+                currency {
+                  id
+                }
                 sellOnShare
                 owner {
                   id
@@ -89,7 +91,9 @@ export function inactiveAsksByMediaIdQuery(mediaId: string): string {
                   id
                 }
                 amount
-                currency
+                currency {
+                  id
+                }
                 sellOnShare
                 owner {
                   id
@@ -111,7 +115,9 @@ export function inactiveBidsByMediaIdQuery(mediaId: string): string {
                   id
                 }
                 amount
-                currency
+                currency {
+                  id
+                }
                 sellOnShare
                 recipient {
                   id
@@ -135,7 +141,9 @@ export function bidByIdQuery(id: string): string {
                   id
                 }
                 amount
-                currency
+                currency {
+                  id
+                }
                 sellOnShare
                 bidder {
                   id
@@ -160,7 +168,9 @@ export function inactiveBidByIdQuery(id: string): string {
                   id
                 }
                 amount
-                currency
+                currency {
+                  id
+                }
                 sellOnShare
                 bidder {
                   id
@@ -173,4 +183,15 @@ export function inactiveBidByIdQuery(id: string): string {
             }
         }
     `;
+}
+
+export function currencyByIdQuery(id: string): string {
+    return gql`
+        {
+            currency(id: "${id}") {
+                id
+                liquidity
+            }    
+        }
+    `
 }
