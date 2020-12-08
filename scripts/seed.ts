@@ -6,7 +6,7 @@ import { promises as fs } from "fs";
 import sha256 from 'crypto-js/sha256';
 import crypto from 'crypto';
 import axios from 'axios';
-import IPFS from 'ipfs-core';
+import fleekStorage from '@fleekhq/fleek-storage-js'
 import { mint } from '../utils/media';
 
 async function startSeed(){
@@ -23,44 +23,44 @@ async function startSeed(){
   await require('dotenv').config({ path });
 
   const provider = new JsonRpcProvider(process.env.RPC_ENDPOINT);
+  const fleekApiKey = process.env.FLEEK_API_KEY;
+  const fleekApiSecret = process.env.FLEEK_API_SECRET;
 
   let [
     wallet1,
     wallet2
   ] = generatedWallets(provider);
 
-  const ipfs = await IPFS.create();
-
   const sharedAddressPath = `${process.cwd()}/config/${args.chainId}.json`;
   // @ts-ignore
   const config = JSON.parse(await fs.readFile(sharedAddressPath));
 
   if (config.mediaAddress == null) {
-    throw new Error("media address not specified in addressbook");
+    throw new Error("media address not specified in config");
   }
 
   if (config.marketAddress == null) {
-    throw new Error("market address not specified in addressbook");
+    throw new Error("market address not specified in config");
   }
 
   let mediaAddress = config.mediaAddress;
   let marketAddress = config.marketAddress;
 
-  // deploy USDC
-  let usdcAddress = await deployCurrency(wallet1);
+  // deploy BRECK
+  let breckAddress = await deployCurrency(wallet1);
 
-  // mint 100,000 USDC for each wallet
-  console.log("Currency Address: ", usdcAddress);
+  // mint 100,000 BRECK for each wallet
+  console.log("Currency Address: ", breckAddress);
 
   console.log("Minting Currency for Each Generated Wallet");
   for (const wallet of generatedWallets(provider)) {
-    await mintCurrency(wallet1, usdcAddress, wallet.address, BigNumber.from("100000000000000000000000"));
+    await mintCurrency(wallet1, breckAddress, wallet.address, BigNumber.from("100000000000000000000000"));
   }
 
   // for each address approve the market max uint256
   console.log("Granting Approval to Market Contract for each Generated Wallet");
   for (const wallet of generatedWallets(provider)) {
-    await approveCurrency(wallet, usdcAddress, marketAddress);
+    await approveCurrency(wallet, breckAddress, marketAddress);
   }
 
   let picsumIds = new Set();
@@ -80,10 +80,14 @@ async function startSeed(){
       sha256.update(response.data);
       let contentHash = sha256.digest()
 
-      let file = {content: response.data};
 
       // upload the file to ipfs
-      const contentCID = await ipfs.add(file, {pin: true});
+      const contentCID = await fleekStorage.upload({
+        apiKey: fleekApiKey,
+        apiSecret: fleekApiSecret,
+        key: wallet.address.concat('-').concat(i.toString()),
+        data: response.data,
+      });
 
       const metadata = {
         version: "0.0.1",
@@ -101,12 +105,16 @@ async function startSeed(){
       let metadataHash = metadataSha256.digest();
 
       // upload it to ipfs
-      let metadataContent = { content: metadataJson }
-      const metadataCID  = await ipfs.add(metadataContent, { pin: true });
+      const metadataCID = await fleekStorage.upload({
+        apiKey: fleekApiKey,
+        apiSecret: fleekApiSecret,
+        key: wallet.address.concat('-').concat(i.toString().concat("-").concat("metadata")),
+        data: metadataJson,
+      });
 
       let mediaData = {
-        tokenURI: "https://ipfs.io/ipfs/".concat(contentCID.cid.toString()),
-        metadataURI: "https://ipfs.io/ipfs/".concat(metadataCID.cid.toString()),
+        tokenURI: "https://ipfs.io/ipfs/".concat(contentCID.hash),
+        metadataURI: "https://ipfs.io/ipfs/".concat(metadataCID.hash),
         contentHash: Uint8Array.from(contentHash),
         metadataHash: Uint8Array.from(metadataHash)
       }

@@ -1,6 +1,6 @@
-# Example Subgraph
+# Zora V1 Subgraph
 
-An example to help you get started with The Graph. For more information see the docs on https://thegraph.com/docs/.
+A subgraph implementation for the V1 of the Zora Protocol
 
 ## Local Setup
 
@@ -43,6 +43,8 @@ Hint:
 - Copy / Paste `http://0.0.0.0:8545` as RPC_ENDPOINT
 - Copy / Paste the first Private Key from `@zoralabs/media/dist/utils/generatedWallets` as PK.
 - Set `PATH_TO_GRAPH` as the path to the dir of the `graph-node` repository you just cloned.
+- Set `FLEEK_API_KEY` to a key ethan gives you
+- Set `FLEEK_API_SECRET` to a secret ethan gives you
 
 ```
 yarn deploy-contracts --chainId 50
