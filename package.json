@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.0.16",
+    "@fleekhq/fleek-storage-js": "^1.0.4",
     "@types/chai": "^4.2.14",
     "@types/jest": "^26.0.15",
     "@types/mocha": "^8.0.4",

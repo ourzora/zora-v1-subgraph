@@ -1,1 +1,7 @@
-{}
+{
+  "marketAddress": "1dC4c1cEFEF38a777b15aA20260a54E584b16C48",
+  "marketStartBlock": 1,
+  "mediaAddress": "1D7022f5B17d2F8B695918FB48fa1089C9f85401",
+  "mediaStartBlock": 2,
+  "network": "mainnet"
+}
