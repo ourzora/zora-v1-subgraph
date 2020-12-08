@@ -16,15 +16,16 @@ async function start() {
   await require('dotenv').config({ path });
   const provider = new JsonRpcProvider(process.env.RPC_ENDPOINT);
   const wallet = new Wallet(`0x${process.env.PRIVATE_KEY}`, provider);
-  const sharedAddressPath = `${process.cwd()}/addresses/${args.chainId}.json`;
+
+  const sharedAddressPath = `${process.cwd()}/config/${args.chainId}.json`;
   // @ts-ignore
-  const addressBook = JSON.parse(await fs.readFileSync(sharedAddressPath));
-  if (addressBook.market) {
+  const config = JSON.parse(await fs.readFileSync(sharedAddressPath));
+  if (config.marketAddress) {
     throw new Error(
       `market already exists in address book at ${sharedAddressPath}. Please move it first so it is not overwritten`
     );
   }
-  if (addressBook.media) {
+  if (config.mediaAddress) {
     throw new Error(
       `media already exists in address book at ${sharedAddressPath}. Please move it first so it is not overwritten`
     );
@@ -35,25 +36,32 @@ async function start() {
   console.log('Deploy TX: ', deployTx.deployTransaction.hash);
   await deployTx.deployed();
   console.log('Market deployed at ', deployTx.address);
-  addressBook.market = deployTx.address;
+  config.marketAddress = deployTx.address.substring(2);
+  const receipt = await provider.getTransactionReceipt(deployTx.deployTransaction.hash);
+  config.marketStartBlock = receipt.blockNumber;
 
   console.log('Deploying Media...');
   const mediaDeployTx = await new MediaFactory(wallet).deploy(
-    addressBook.market
+    config.marketAddress
   );
   console.log(`Deploy TX: ${mediaDeployTx.deployTransaction.hash}`);
   await mediaDeployTx.deployed();
   console.log(`Media deployed at ${mediaDeployTx.address}`);
-  addressBook.media = mediaDeployTx.address;
+  config.mediaAddress = mediaDeployTx.address.substring(2);
+  const mediaReceipt = await provider.getTransactionReceipt(mediaDeployTx.deployTransaction.hash);
+  config.mediaStartBlock = mediaReceipt.blockNumber;
+
 
   console.log('Configuring Market...');
-  const market = MarketFactory.connect(addressBook.market, wallet);
-  const tx = await market.configure(addressBook.media);
+  const market = MarketFactory.connect(config.marketAddress, wallet);
+  const tx = await market.configure(config.mediaAddress);
   console.log(`Market configuration tx: ${tx.hash}`);
   await tx.wait();
   console.log(`Market configured.`);
 
-  await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
+  config.network = args.chainId === 4 ? 'rinkeby' : 'mainnet';
+
+  await fs.writeFile(sharedAddressPath, JSON.stringify(config, null, 2));
   console.log(`Contracts deployed and configured. ☼☽`);
 }
 

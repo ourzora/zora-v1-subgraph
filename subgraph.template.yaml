@@ -1,15 +1,16 @@
 specVersion: 0.0.2
 description: Zora Media
-repository: https://github.com/graphprotocol/example-subgraph
+repository: https://github.com/ourzora/zora-v1-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: Media
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0x1D7022f5B17d2F8B695918FB48fa1089C9f85401"
+      address: {{mediaAddress}}
       abi: Media
+      startBlock: {{mediaStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -35,10 +36,11 @@ dataSources:
       file: ./src/media.ts
   - kind: ethereum/contract
     name: Market
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0x1dC4c1cEFEF38a777b15aA20260a54E584b16C48"
+      address: {{marketAddress}}
       abi: Market
+      startBlock: {{marketStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
