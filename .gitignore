@@ -70,3 +70,6 @@ bin/
 
 # .env
 .env.local
+
+# subgraph
+subgraph.yaml

@@ -31,20 +31,20 @@ async function startSeed(){
 
   const ipfs = await IPFS.create();
 
-  const sharedAddressPath = `${process.cwd()}/addresses/${args.chainId}.json`;
+  const sharedAddressPath = `${process.cwd()}/config/${args.chainId}.json`;
   // @ts-ignore
-  const addressBook = JSON.parse(await fs.readFile(sharedAddressPath));
+  const config = JSON.parse(await fs.readFile(sharedAddressPath));
 
-  if (addressBook.media == null) {
+  if (config.mediaAddress == null) {
     throw new Error("media address not specified in addressbook");
   }
 
-  if (addressBook.market == null) {
+  if (config.marketAddress == null) {
     throw new Error("market address not specified in addressbook");
   }
 
-  let mediaAddress = addressBook.media;
-  let marketAddress = addressBook.market;
+  let mediaAddress = config.mediaAddress;
+  let marketAddress = config.marketAddress;
 
   // deploy USDC
   let usdcAddress = await deployCurrency(wallet1);
@@ -90,7 +90,7 @@ async function startSeed(){
         name: "Lorem Ipsum",
         description: "Lorem Ipsum",
         creator: wallet.address,
-        mimeType: "image/jpg",
+        mimeType: "image/jpeg",
       }
 
       const metadataJson = JSON.stringify(metadata);
