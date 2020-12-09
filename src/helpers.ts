@@ -31,9 +31,12 @@ export function findOrCreateUser(id: string): User {
 
 export function fetchMediaBidShares(tokenId: BigInt): BidShares {
     let market = MarketContract.bind(Address.fromString(marketAddress));
-    let bidShares = market.bidSharesForToken(tokenId);
+    let bidSharesTry = market.try_bidSharesForToken(tokenId);
+    if (bidSharesTry.reverted){
+        return new BidShares(null, null, null);
+    }
 
-    return new BidShares(bidShares.creator.value, bidShares.owner.value, bidShares.prevOwner.value);
+    return new BidShares(bidSharesTry.value.creator.value, bidSharesTry.value.owner.value, bidSharesTry.value.prevOwner.value);
 }
 
 export function createMedia(
