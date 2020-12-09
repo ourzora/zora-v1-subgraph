@@ -1,5 +1,13 @@
 import {Address, Bytes, BigDecimal, BigInt, log} from "@graphprotocol/graph-ts/index";
-import {User, Media, Ask, Bid, InactiveAsk, InactiveBid} from '../types/schema';
+import {
+    User,
+    Media,
+    Ask,
+    Bid,
+    InactiveAsk,
+    InactiveBid,
+    Currency
+} from '../types/schema';
 import {Market as MarketContract} from '../types/Market/Market';
 
 const mediaAddress = "0x1D7022f5B17d2F8B695918FB48fa1089C9f85401";
@@ -27,6 +35,18 @@ export function findOrCreateUser(id: string): User {
     }
 
     return user as User;
+}
+
+export function findOrCreateCurrency(id: string): Currency {
+    let currency = Currency.load(id);
+
+    if (currency == null){
+        currency = new Currency(id);
+        currency.liquidity = BigInt.fromI32(0);
+        currency.save();
+    }
+
+    return currency as Currency;
 }
 
 export function fetchMediaBidShares(tokenId: BigInt): BidShares {
@@ -75,7 +95,7 @@ export function createMedia(
 export function createAsk(
     id: string,
     amount: BigInt,
-    currency: string,
+    currency: Currency,
     sellOnShare: BigInt,
     media: Media,
     createdAtTimestamp: BigInt,
@@ -83,7 +103,7 @@ export function createAsk(
 ): Ask {
     let ask = new Ask(id);
     ask.amount = amount;
-    ask.currency = currency;
+    ask.currency = currency.id;
     ask.sellOnShare = sellOnShare;
     ask.media = media.id;
     ask.owner = media.owner;
@@ -99,7 +119,7 @@ export function createInactiveAsk(
     media: Media,
     type: string,
     amount: BigInt,
-    currency: string,
+    currency: Currency,
     sellOnShare: BigInt,
     owner: string,
     createdAtTimestamp: BigInt,
@@ -110,7 +130,7 @@ export function createInactiveAsk(
     inactiveAsk.type = type;
     inactiveAsk.media = media.id;
     inactiveAsk.amount = amount;
-    inactiveAsk.currency = currency;
+    inactiveAsk.currency = currency.id;
     inactiveAsk.sellOnShare = sellOnShare;
     inactiveAsk.owner = owner;
     inactiveAsk.createdAtTimestamp = createdAtTimestamp;
@@ -125,7 +145,7 @@ export function createInactiveBid(
     type: string,
     media: Media,
     amount: BigInt,
-    currency: string,
+    currency: Currency,
     sellOnShare: BigInt,
     bidder: User,
     recipient: User,
@@ -136,7 +156,7 @@ export function createInactiveBid(
     inactiveBid.type = type;
     inactiveBid.media = media.id,
     inactiveBid.amount = amount;
-    inactiveBid.currency = currency;
+    inactiveBid.currency = currency.id;
     inactiveBid.sellOnShare = sellOnShare;
     inactiveBid.bidder = bidder.id;
     inactiveBid.recipient = recipient.id;
@@ -150,7 +170,7 @@ export function createInactiveBid(
 export function createBid(
     id: string,
     amount: BigInt,
-    currency: string,
+    currency: Currency,
     sellOnShare: BigInt,
     bidder: User,
     recipient: User,
@@ -160,7 +180,7 @@ export function createBid(
 ): Bid {
     let bid = new Bid(id);
     bid.amount = amount;
-    bid.currency = currency;
+    bid.currency = currency.id;
     bid.sellOnShare = sellOnShare;
     bid.bidder = bidder.id;
     bid.recipient = recipient.id;

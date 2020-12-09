@@ -48,7 +48,7 @@ export interface Bid {
     id: string;
     media: Media;
     amount: BigInt;
-    currency: string;
+    currency: Currency;
     sellOnShare: BigInt;
     bidder: User;
     recipient: User;
@@ -68,7 +68,7 @@ export interface Ask {
     id: string;
     media: Media;
     amount: BigInt;
-    currency: string;
+    currency: Currency;
     sellOnShare: BigInt;
     owner: User;
     createdAtTimestamp: BigInt;
@@ -88,7 +88,7 @@ export interface InactiveAsk {
     type: string;
     media: Media;
     amount: BigInt;
-    currency: string;
+    currency: Currency;
     sellOnShare: BigInt;
     owner: User;
     createdAtTimestamp: BigInt;
@@ -108,7 +108,7 @@ export interface InactiveBid {
     type: string;
     media: Media;
     amount: BigInt;
-    currency: string;
+    currency: Currency;
     sellOnShare: BigInt;
     bidder: User;
     recipient: User;
@@ -122,4 +122,13 @@ export interface InactiveBidQueryResponse {
 
 export interface InactiveBidsQueryResponse {
     inactiveBids: Array<InactiveBid>;
+}
+
+export interface Currency {
+    id: string;
+    liquidity: BigInt;
+}
+
+export interface CurrencyQueryResponse {
+    currency: Currency;
 }

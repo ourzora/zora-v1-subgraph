@@ -85,7 +85,11 @@ yarn chain
 ```
 
 To run tests 
+
 ```
+yarn prepare:local
+yarn codegen
+yarn build
 yarn test
 ```
 

@@ -39,7 +39,7 @@ type Ask @entity {
   id: ID!
   media: Media!
   amount: BigInt!
-  currency: String!
+  currency: Currency!
   sellOnShare: BigInt!
   owner: User!
 
@@ -51,7 +51,7 @@ type Bid @entity {
   id: ID!
   media: Media!
   amount: BigInt!
-  currency: String!
+  currency: Currency!
   sellOnShare: BigInt!
   bidder: User!
   recipient: User!
@@ -70,7 +70,7 @@ type InactiveBid @entity {
   media: Media!
   type: MarketEventType!
   amount: BigInt!
-  currency: String!
+  currency: Currency!
   sellOnShare: BigInt!
   bidder: User!
   recipient: User!
@@ -84,7 +84,7 @@ type InactiveAsk @entity {
   media: Media!
   type: MarketEventType!
   amount: BigInt!
-  currency: String!
+  currency: Currency!
   sellOnShare: BigInt!
   owner: User!
 
@@ -92,10 +92,18 @@ type InactiveAsk @entity {
   createdAtBlockNumber: BigInt!
 }
 
+type Currency @entity {
+  # address
+  id: ID!
 
+  # total liquidity across bids of all media
+  liquidity: BigInt!
 
-
-
+  activeBids: [Bid!] @derivedFrom(field: "currency")
+  activeAsks: [Ask!] @derivedFrom(field: "currency")
+  inactiveBids: [InactiveBid!] @derivedFrom(field: "currency")
+  inactiveAsks: [InactiveAsk!] @derivedFrom(field: "currency")
+}
 
 
 
