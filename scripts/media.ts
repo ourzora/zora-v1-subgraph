@@ -17,6 +17,7 @@ import {
   totalSupply
 } from "../utils/media";
 import {promises as fs} from "fs";
+import Decimal from "@zoralabs/media/dist/utils/Decimal";
 
 
 async function start(){
@@ -197,7 +198,13 @@ async function start(){
 
       const tokenId = BigNumber.from(args.tokenId);
 
-      await setAsk(addressBook.media, wallet1, tokenId);
+      let defaultAsk = {
+        currency: "eF77ce798401dAc8120F77dc2DebD5455eDdACf9", // DAI
+        amount: Decimal.new(10).value,
+        sellOnShare: Decimal.new(10),
+      }
+
+      await setAsk(addressBook.media, wallet1, tokenId, defaultAsk);
       break;
     }
     case 'removeAsk': {
@@ -216,7 +223,15 @@ async function start(){
 
       const tokenId = BigNumber.from(args.tokenId);
 
-      await setBid(addressBook.media, wallet2, tokenId, wallet1.address);
+      let defaultBid = {
+        currency: "D1aE64401d65E9B0d1bF7E08Fbf75bb2F26eF70a",
+        amount: 9,
+        sellOnShare: Decimal.new(9),
+        recipient: wallet1.address,
+        bidder: wallet1.address
+      }
+
+      await setBid(addressBook.media, wallet2, tokenId, defaultBid);
       break;
     }
     case `removeBid`: {

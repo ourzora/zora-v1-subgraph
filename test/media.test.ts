@@ -35,6 +35,7 @@ import set = Reflect.set;
 import {BaseErc20Factory} from "@zoralabs/media/dist/typechain";
 import {approveCurrency, mintCurrency} from "../utils/currency";
 import dotenv from 'dotenv';
+import {SolidityBid, SolidityAsk} from "../utils/types";
 
 
 axiosRetry(axios, { retryDelay: exponentialDelay, retries: 100, retryCondition: isNetworkError} );
@@ -43,20 +44,6 @@ jest.setTimeout(1000000);
 
 const gqlURL = "http://127.0.0.1:8000/subgraphs/name/sporkspatula/zora-v1-subgraph";
 const pathToGraphNode = process.env.PATH_TO_GRAPH;
-
-type SolidityAsk = {
-    currency: string;
-    amount: BigNumberish;
-    sellOnShare: { value: BigNumberish }
-}
-
-type SolidityBid = {
-    currency: string;
-    amount: BigNumberish;
-    sellOnShare: { value: BigNumberish }
-    bidder: string;
-    recipient: string;
-}
 
 describe("Media", async () => {
     let mediaAddress: string;
