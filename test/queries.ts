@@ -195,3 +195,60 @@ export function currencyByIdQuery(id: string): string {
         }
     `
 }
+
+export function transfersByMediaIdQuery(mediaId: string): string {
+    return gql`
+        {
+            transfers(where: { media: "${mediaId}"}){
+                id
+                media {
+                  id
+                }
+                from {
+                  id
+                }
+                to {
+                  id
+                }
+            }
+        }
+    `
+}
+
+export function transfersByFromIdQuery(fromId: string): string {
+    return gql`
+        {
+            transfers(where: { from: "${fromId}"}){
+                id
+                media {
+                  id
+                }
+                from {
+                  id
+                }
+                to {
+                  id
+                }
+            }
+        }
+    `
+}
+
+export function transfersByToIdQuery(toId: string): string {
+    return gql`
+        {
+            transfers(where: { to: "${toId}"}){
+                id
+                media {
+                  id
+                }
+                from {
+                  id
+                }
+                to {
+                  id
+                }
+            }
+        }
+    `
+}

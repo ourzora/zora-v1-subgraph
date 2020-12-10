@@ -19,7 +19,7 @@ import {
     MediaQueryResponse,
     UserQueryResponse,
     Currency,
-    CurrencyQueryResponse
+    CurrencyQueryResponse, TransfersQueryResponse
 } from "./types";
 import {
     askByIdQuery,
@@ -28,14 +28,14 @@ import {
     inactiveAsksByMediaIdQuery,
     mediaByIdQuery,
     userByIdQuery,
-    currencyByIdQuery
+    currencyByIdQuery, transfersByMediaIdQuery, transfersByFromIdQuery, transfersByToIdQuery
 } from "./queries";
 import {exponentialDelay, delay, randomHashBytes, toNumWei} from "./utils";
-import set = Reflect.set;
 import {BaseErc20Factory} from "@zoralabs/media/dist/typechain";
 import {approveCurrency, mintCurrency} from "../utils/currency";
 import dotenv from 'dotenv';
 import {SolidityBid, SolidityAsk} from "../utils/types";
+import {zeroAddress} from "../src/helpers";
 
 
 axiosRetry(axios, { retryDelay: exponentialDelay, retries: 100, retryCondition: isNetworkError} );
@@ -256,7 +256,6 @@ describe("Media", async () => {
             let zeroUser = zeroUserResponse.user;
             expect(zeroUser.id).toBe(ethers.constants.AddressZero);
 
-
             let userResponse: UserQueryResponse = await request(gqlURL, userByIdQuery(creatorWallet.address.toLowerCase()));
             let user = userResponse.user;
 
@@ -269,6 +268,10 @@ describe("Media", async () => {
             let otherContentHash = await randomHashBytes();
             let otherMetadataHash = await randomHashBytes();
 
+            let transfersResponse: TransfersQueryResponse = await request(gqlURL, transfersByMediaIdQuery("0"));
+            expect(transfersResponse.transfers.length).toBe(1);
+            expect(transfersResponse.transfers[0].from.id).toBe(ethers.constants.AddressZero);
+            expect(transfersResponse.transfers[0].to.id).toBe(creatorWallet.address.toLowerCase());
             // Mint again with the same address
             await mint(creatorWallet, otherContentHash, otherMetadataHash);
 
@@ -285,6 +288,11 @@ describe("Media", async () => {
             expect(user2.id).toBe(creatorWallet.address.toLowerCase());
             expect(user2.collection.length).toBe(2);
             expect(user2.creations.length).toBe(2);
+
+            transfersResponse = await request(gqlURL, transfersByMediaIdQuery("1"));
+            expect(transfersResponse.transfers.length).toBe(1);
+            expect(transfersResponse.transfers[0].from.id).toBe(ethers.constants.AddressZero);
+            expect(transfersResponse.transfers[0].to.id).toBe(creatorWallet.address.toLowerCase());
 
             // Mint with a new address
             let otherContentHash2 = await randomHashBytes();
@@ -306,6 +314,11 @@ describe("Media", async () => {
             expect(user3.id).toBe(otherWallet.address.toLowerCase());
             expect(user3.collection.length).toBe(1);
             expect(user3.creations.length).toBe(1);
+
+            // transfersResponse = await request(gqlURL, transfersByMediaIdQuery("2"));
+            // expect(transfersResponse.transfers.length).toBe(1);
+            // expect(transfersResponse.transfers[0].from.id).toBe(zeroAddress);
+            // expect(transfersResponse.transfers[0].to.id).toBe(otherWallet.address.toLowerCase());
        })
     });
 
@@ -328,6 +341,12 @@ describe("Media", async () => {
 
             await transfer(creatorWallet, BigNumber.from(0), otherWallet.address);
 
+            let transfersResponse: TransfersQueryResponse = await request(gqlURL, transfersByFromIdQuery(creatorWallet.address.toLowerCase()));
+            expect(transfersResponse.transfers.length).toBe(1);
+            expect(transfersResponse.transfers[0].from.id).toBe(creatorWallet.address.toLowerCase());
+            expect(transfersResponse.transfers[0].to.id).toBe(otherWallet.address.toLowerCase());
+            expect(transfersResponse.transfers[0].media.id).toBe("0");
+
             // verify other address exists with correct data
             let otherUserResponse: UserQueryResponse = await request(gqlURL, userByIdQuery(otherWallet.address.toLowerCase()));
             let otherUser = otherUserResponse.user;
@@ -344,7 +363,6 @@ describe("Media", async () => {
             expect(media.prevOwner.id).toBe(creatorWallet.address.toLowerCase());
             expect(media.owner.id).toBe(otherWallet.address.toLowerCase());
             expect(media.approved).toBeNull();
-
 
             // TODO: verify approve gets reset to 0
             await approve(otherWallet, BigNumber.from(0), creatorWallet.address);
@@ -367,12 +385,24 @@ describe("Media", async () => {
 
             expect(media.id).toBe("0");
             expect(media.creator.id).toBe(creatorWallet.address.toLowerCase());
-            expect(media.prevOwner.id).toBe(otherWallet.address.toLowerCase());
+            expect(media.prevOwner.id).toBe(creatorWallet.address.toLowerCase());
             expect(media.owner.id).toBe(anotherWallet.address.toLowerCase());
             expect(media.approved).toBeNull();
 
+            transfersResponse = await request(gqlURL, transfersByFromIdQuery(otherWallet.address.toLowerCase()));
+            expect(transfersResponse.transfers.length).toBe(1);
+            expect(transfersResponse.transfers[0].from.id).toBe(otherWallet.address.toLowerCase());
+            expect(transfersResponse.transfers[0].to.id).toBe(anotherWallet.address.toLowerCase());
+            expect(transfersResponse.transfers[0].media.id).toBe("0");
+
             // burn (transfer from address to 0x0000)
             await transfer(anotherWallet, BigNumber.from(0), creatorWallet.address);
+
+            let anotherTransfersResponse: TransfersQueryResponse = await request(gqlURL, transfersByFromIdQuery(anotherWallet.address.toLowerCase()));
+            expect(anotherTransfersResponse.transfers.length).toBe(1);
+            expect(anotherTransfersResponse.transfers[0].from.id).toBe(anotherWallet.address.toLowerCase());
+            expect(anotherTransfersResponse.transfers[0].to.id).toBe(creatorWallet.address.toLowerCase());
+            expect(anotherTransfersResponse.transfers[0].media.id).toBe("0");
 
             await burn(creatorWallet, BigNumber.from(0));
 
@@ -386,10 +416,11 @@ describe("Media", async () => {
             expect(media.burnedAtTimestamp).not.toBeNull();
             expect(media.burnedAtBlockNumber).not.toBeNull();
 
-            // ask is removed
-            // TODO: set up ask first
-
-            // inactiveAsk exists
+            let burnTransfersResponse: TransfersQueryResponse = await request(gqlURL, transfersByToIdQuery(ethers.constants.AddressZero));
+            expect(burnTransfersResponse.transfers.length).toBe(1);
+            expect(burnTransfersResponse.transfers[0].from.id).toBe(creatorWallet.address.toLowerCase());
+            expect(burnTransfersResponse.transfers[0].to.id).toBe(ethers.constants.AddressZero);
+            expect(burnTransfersResponse.transfers[0].media.id).toBe("0");
         });
     })
 
@@ -648,6 +679,42 @@ describe("Media", async () => {
             expect(media.inactiveBids.length).toBe(3);
             expect(media.currentAsk).toBeNull();
             expect(media.approved).toBeNull();
+
+            // it creates a transfer
+            let transfersResponse: TransfersQueryResponse = await request(gqlURL, transfersByFromIdQuery(creatorWallet.address.toLowerCase()));
+            expect(transfersResponse.transfers.length).toBe(1);
+            expect(transfersResponse.transfers[0].from.id).toBe(creatorWallet.address.toLowerCase());
+            expect(transfersResponse.transfers[0].to.id).toBe(otherWallet.address.toLowerCase());
+            expect(transfersResponse.transfers[0].media.id).toBe("0");
+
+
+            // if a transfer happens, the prevOwner is not updated until after a bid is accepted.
+            await transfer(otherWallet, 0, anotherWallet.address);
+
+            // load media and ensure the prevOwner is still creatorWallet
+            mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
+            media = mediaResponse.media;
+            expect(media.owner.id).toBe(anotherWallet.address.toLowerCase());
+            expect(media.prevOwner.id).toBe(creatorWallet.address.toLowerCase());
+
+            // set the ask
+            await setAsk(anotherWallet, 0, onChainAsk);
+
+            // set the bid with creator Wallet
+            let anotherAcceptedOnChainBid = defaultBid(currencyAddress, creatorWallet.address, creatorWallet.address, 12, 12);
+            await setBid(creatorWallet, 0, anotherAcceptedOnChainBid);
+
+            // check if the prevOwner is not otherWallet
+            mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
+            media = mediaResponse.media;
+            expect(media.owner.id).toBe(creatorWallet.address.toLowerCase());
+            expect(media.prevOwner.id).toBe(anotherWallet.address.toLowerCase());
+
+            transfersResponse = await request(gqlURL, transfersByFromIdQuery(anotherWallet.address.toLowerCase()));
+            expect(transfersResponse.transfers.length).toBe(1);
+            expect(transfersResponse.transfers[0].from.id).toBe(anotherWallet.address.toLowerCase());
+            expect(transfersResponse.transfers[0].to.id).toBe(creatorWallet.address.toLowerCase());
+            expect(transfersResponse.transfers[0].media.id).toBe("0");
         });
     })
 

@@ -6,7 +6,7 @@ import {
     Bid,
     InactiveAsk,
     InactiveBid,
-    Currency
+    Currency, Transfer
 } from '../types/schema';
 import {Market as MarketContract} from '../types/Market/Market';
 
@@ -190,5 +190,24 @@ export function createBid(
 
     bid.save();
     return bid;
+}
+
+export function createTransfer(
+    id: string,
+    media: Media,
+    from: User,
+    to: User,
+    createdAtTimestamp: BigInt,
+    createdAtBlockNumber: BigInt
+): Transfer {
+    let transfer = new Transfer(id);
+    transfer.media = media.id;
+    transfer.from = from.id;
+    transfer.to = to.id;
+    transfer.createdAtTimestamp = createdAtTimestamp;
+    transfer.createdAtBlockNumber = createdAtBlockNumber;
+
+    transfer.save();
+    return transfer;
 }
 

@@ -1,7 +1,7 @@
 import {Media, User} from "../types/schema";
 import {Media as MediaContract, Approval, ApprovalForAll, Transfer, TokenURIUpdated, TokenMetadataURIUpdated} from "../types/Media/Media";
 import {Address, Bytes, BigInt, log} from "@graphprotocol/graph-ts";
-import {findOrCreateUser, createMedia, fetchMediaBidShares, BidShares, zeroAddress} from './helpers';
+import {findOrCreateUser, createMedia, fetchMediaBidShares, BidShares, zeroAddress, createTransfer} from './helpers';
 
 export function handleTokenURIUpdated(event: TokenURIUpdated): void {
     let tokenId = event.params._tokenId.toString()
@@ -51,18 +51,30 @@ export function handleTransfer(event: Transfer): void {
     }
 
     let media = Media.load(tokenId);
+    if (media == null){
+        log.error(`Media is null for token id: {}`, [tokenId]);
+    }
 
     if(toUser.id == zeroAddress){
         media.prevOwner = zeroAddress;
         media.burnedAtTimeStamp = event.block.timestamp;
         media.burnedAtBlockNumber = event.block.number;
-    } else {
-        media.prevOwner = fromUser.id;
     }
 
     media.owner = toUser.id;
     media.approved = null;
     media.save();
+
+    let transferId = tokenId.concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
+
+    createTransfer(
+        transferId,
+        media as Media,
+        fromUser,
+        toUser,
+        event.block.timestamp,
+        event.block.number
+    );
 
     log.info(`Completed handler for Transfer Event of tokenId: {}, from: {}. to: {}`, [tokenId, fromAddr, toAddr])
 }
@@ -118,6 +130,7 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
 
 function handleMint(event: Transfer): void {
     let creator = findOrCreateUser(event.params.to.toHexString());
+    let zeroUser = findOrCreateUser(zeroAddress);
     let tokenId = event.params.tokenId;
 
     let mediaContract = MediaContract.bind(event.address);
@@ -129,7 +142,7 @@ function handleMint(event: Transfer): void {
 
     let bidShares = fetchMediaBidShares(tokenId);
 
-    createMedia(
+    let media = createMedia(
         tokenId.toString(),
         creator,
         creator,
@@ -143,5 +156,16 @@ function handleMint(event: Transfer): void {
         bidShares.prevOwner,
         event.block.timestamp,
         event.block.number
-    )
+    );
+
+    let transferId = tokenId.toString().concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
+
+    createTransfer(
+        transferId,
+        media,
+        zeroUser,
+        creator,
+        event.block.timestamp,
+        event.block.number
+    );
 }

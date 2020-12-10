@@ -1,6 +1,6 @@
 import {BidShareUpdated, AskCreated, AskRemoved, BidCreated, BidFinalized, BidRemoved} from '../types/Market/Market';
 import {BigDecimal, BigInt, log, store} from "@graphprotocol/graph-ts";
-import {Media, User, Ask, Bid} from "../types/schema";
+import {Media, User, Ask, Bid, Transfer} from "../types/schema";
 import {
     createAsk,
     createBid,
@@ -211,6 +211,21 @@ export function handleBidFinalized(event: BidFinalized): void {
     let recipient = findOrCreateUser(onChainBid.recipient.toHexString());
     let currency = findOrCreateCurrency(onChainBid.currency.toHexString());
 
+
+    // BidFinalized is always the event after transfer
+    // Find the transfer by id and set the from address as the prevOwner of the media
+    let transferId = event.params.tokenId.toString()
+                            .concat("-")
+                            .concat(event.transaction.hash.toHexString())
+                            .concat("-")
+                            .concat((event.transactionLogIndex.minus(BigInt.fromI32(1))).toString());
+    let transfer = Transfer.load(transferId);
+    if (transfer == null) {
+        log.error("Transfer is null for transfer id: {}", [transferId]);
+    }
+
+    media.prevOwner = transfer.from;
+    media.save();
 
     // Create Inactive Bid
     createInactiveBid(
