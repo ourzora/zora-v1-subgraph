@@ -246,11 +246,6 @@ async function randomTransfers(wallets: Array<Wallet>, mediaAddress: string){
   }
 }
 
-async function randomMedia(wallets: Array<Wallet>, mediaAddress: string){
-
-
-}
-
 
 startSeed().catch((e: Error) => {
   console.error(e);
