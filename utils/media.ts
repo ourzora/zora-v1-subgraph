@@ -2,13 +2,8 @@ import {Wallet} from "@ethersproject/wallet";
 import {MediaFactory} from "@zoralabs/media/dist/typechain/MediaFactory";
 import Decimal from "@zoralabs/media/dist/utils/Decimal";
 import {BigNumber, Bytes} from "ethers";
+import {SolidityBid, SolidityAsk, MediaData} from "../utils/types";
 
-export type MediaData = {
-    tokenURI: string;
-    metadataURI: string;
-    contentHash: Bytes;
-    metadataHash: Bytes;
-}
 
 export async function mint(
     mediaAddress: string,
@@ -67,15 +62,9 @@ export async function transfer(mediaAddress: string, wallet: Wallet, tokenId: Bi
     return tx.hash;
 }
 
-export async function setAsk(mediaAddress: string, wallet: Wallet, tokenId: BigNumber){
-    let defaultAsk = {
-        currency: "eF77ce798401dAc8120F77dc2DebD5455eDdACf9", // DAI
-        amount: Decimal.new(10).value,
-        sellOnShare: Decimal.new(10),
-    }
-
+export async function setAsk(mediaAddress: string, wallet: Wallet, tokenId: BigNumber, ask: SolidityAsk){
     const media = await MediaFactory.connect(mediaAddress, wallet);
-    const tx = await media.setAsk(tokenId, defaultAsk);
+    const tx = await media.setAsk(tokenId, ask);
     console.log(tx);
 }
 
@@ -85,17 +74,9 @@ export async function removeAsk(mediaAddress: string, wallet: Wallet, tokenId: B
     console.log(tx);
 }
 
-export async function setBid(mediaAddress: string, wallet: Wallet, tokenId: BigNumber, recipient: string){
-    let defaultBid = {
-        currency: "D1aE64401d65E9B0d1bF7E08Fbf75bb2F26eF70a",
-        amount: 9,
-        sellOnShare: Decimal.new(9),
-        recipient: recipient,
-        bidder: wallet.address
-    }
-
+export async function setBid(mediaAddress: string, wallet: Wallet, tokenId: BigNumber, bid: SolidityBid){
     const media = MediaFactory.connect(mediaAddress, wallet);
-    const tx = await media.setBid(tokenId, defaultBid);
+    const tx = await media.setBid(tokenId, bid);
     console.log(tx);
 }
 
