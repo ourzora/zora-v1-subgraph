@@ -63,7 +63,7 @@ yarn deploy-local
 ### 5. Seed Contract with Newly Minted Media
 
 ```
-yarn seed-graph --chainId 50
+yarn seed-graph --chainId 50 --fullMonty
 ```
 
 ### 6. Voila
@@ -94,3 +94,25 @@ yarn test
 ```
 
 They may take up to 30 minutes to run.
+
+## Advanced Setup
+
+There are many scripts that can be run to customize the data populated in your contracts / subgraph.
+
+In `seed.ts` you have the following options to run for all of the generatedWallets
+- `--fullyMonty` will deploy a new currency contract, mint currency, approve currency, mintMedia, setRandomAsks, and setRandomBids
+- `--asks` will set random asks on all the media minted by the generatedWallets
+- `--bids` will set random bids on 1 piece of media for each wallet in generatedWallets
+- `--transfers` will randomly transfer 1 piece of media from each wallet to a randomly selected wallet in generatedWallets
+- (SOON) `--betterMint` will mint a piece of media of each mime type for each wallet. 
+
+In `media.ts` you can interact directly with the contracts by passing `--funcName` and the name of the function.
+You can also mint any media that currently already lives on ipfs by passing in `--funcName mintFromIPFS --mimeType <mimeType`
+
+Example: 
+
+```bash
+
+yarn ts-node scripts/media --chainId 4 --funcName mintFromIPFS --ipfsPath Qmba649sCjuvUk6cY8ca9roFWHdXA7Cp2Ka66SmBdhJy9Y/snowbringerpix.gif --mimeType image/gif
+
+```

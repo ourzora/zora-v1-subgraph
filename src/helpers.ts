@@ -6,12 +6,15 @@ import {
     Bid,
     InactiveAsk,
     InactiveBid,
-    Currency, Transfer
+    Currency,
+    Transfer
 } from '../types/schema';
+import {Media as MediaContract} from '../types/Media/Media'
 import {Market as MarketContract} from '../types/Market/Market';
+import {ERC20} from "../types/Market/ERC20";
+import {ERC20NameBytes} from "../types/Market/ERC20NameBytes";
+import {ERC20SymbolBytes} from "../types/Market/ERC20SymbolBytes";
 
-const mediaAddress = "0x1D7022f5B17d2F8B695918FB48fa1089C9f85401";
-const marketAddress = "0x1dC4c1cEFEF38a777b15aA20260a54E584b16C48";
 export const zeroAddress = "0x0000000000000000000000000000000000000000";
 
 export class BidShares {
@@ -41,22 +44,97 @@ export function findOrCreateCurrency(id: string): Currency {
     let currency = Currency.load(id);
 
     if (currency == null){
-        currency = new Currency(id);
-        currency.liquidity = BigInt.fromI32(0);
-        currency.save();
+        currency = createCurrency(id);
     }
 
     return currency as Currency;
 }
 
-export function fetchMediaBidShares(tokenId: BigInt): BidShares {
-    let market = MarketContract.bind(Address.fromString(marketAddress));
+export function createCurrency(id: string): Currency {
+    let currency = new Currency(id);
+    currency.liquidity = BigInt.fromI32(0);
+
+    let name = fetchCurrencyName(Address.fromString(id));
+    let symbol = fetchCurrencySymbol(Address.fromString(id));
+    let decimals = fetchCurrencyDecimals(Address.fromString(id));
+
+
+    currency.name = name;
+    currency.symbol = symbol;
+    currency.decimals = decimals;
+
+    currency.save();
+    return currency;
+}
+
+export function fetchMediaBidShares(tokenId: BigInt, mediaAddress: Address): BidShares {
+    let media = MediaContract.bind(mediaAddress);
+    let marketAddress = media.marketContract();
+    let market = MarketContract.bind(marketAddress);
     let bidSharesTry = market.try_bidSharesForToken(tokenId);
     if (bidSharesTry.reverted){
         return new BidShares(null, null, null);
     }
 
     return new BidShares(bidSharesTry.value.creator.value, bidSharesTry.value.owner.value, bidSharesTry.value.prevOwner.value);
+}
+
+export function fetchCurrencyDecimals(currencyAddress: Address): i32 {
+    let contract = ERC20.bind(currencyAddress)
+    // try types uint8 for decimals
+    let decimalValue = null
+    let decimalResult = contract.try_decimals()
+    if (!decimalResult.reverted) {
+        decimalValue = decimalResult.value
+    }
+    return decimalValue as i32
+}
+
+export function fetchCurrencySymbol(currencyAddress: Address): string {
+    let contract = ERC20.bind(currencyAddress)
+    let contractSymbolBytes = ERC20SymbolBytes.bind(currencyAddress)
+
+    // try types string and bytes32 for symbol
+    let symbolValue = 'unknown'
+    let symbolResult = contract.try_symbol()
+    if (symbolResult.reverted) {
+        let symbolResultBytes = contractSymbolBytes.try_symbol()
+        if (!symbolResultBytes.reverted) {
+            // for broken pairs that have no symbol function exposed
+            if (!isNullEthValue(symbolResultBytes.value.toHexString())) {
+                symbolValue = symbolResultBytes.value.toString()
+            }
+        }
+    } else {
+        symbolValue = symbolResult.value
+    }
+
+    return symbolValue
+}
+
+export function fetchCurrencyName(currencyAddress: Address): string {
+    let contract = ERC20.bind(currencyAddress)
+    let contractNameBytes = ERC20NameBytes.bind(currencyAddress)
+
+    // try types string and bytes32 for name
+    let nameValue = 'unknown'
+    let nameResult = contract.try_name()
+    if (nameResult.reverted) {
+        let nameResultBytes = contractNameBytes.try_name()
+        if (!nameResultBytes.reverted) {
+            if (!isNullEthValue(nameResultBytes.value.toHexString())) {
+                nameValue = nameResultBytes.value.toString()
+            }
+        }
+    } else {
+        nameValue = nameResult.value
+    }
+
+    return nameValue
+}
+
+export function isNullEthValue(value: string): boolean {
+    return value == '0x0000000000000000000000000000000000000000000000000000000000000001'
 }
 
 export function createMedia(
@@ -210,4 +288,6 @@ export function createTransfer(
     transfer.save();
     return transfer;
 }
+
+
 

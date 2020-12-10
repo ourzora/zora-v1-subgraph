@@ -190,6 +190,9 @@ export function currencyByIdQuery(id: string): string {
         {
             currency(id: "${id}") {
                 id
+                name
+                symbol
+                decimals
                 liquidity
             }    
         }

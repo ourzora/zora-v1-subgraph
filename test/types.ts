@@ -126,6 +126,9 @@ export interface InactiveBidsQueryResponse {
 
 export interface Currency {
     id: string;
+    name: string;
+    symbol: string;
+    decimals: number;
     liquidity: BigInt;
 }
 
