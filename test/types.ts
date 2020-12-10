@@ -132,3 +132,16 @@ export interface Currency {
 export interface CurrencyQueryResponse {
     currency: Currency;
 }
+
+export interface Transfer {
+    id: string;
+    media: Media;
+    from: User;
+    to: User;
+    createdAtTimestamp: BigInt;
+    createdAtBlockNumber: BigInt;
+}
+
+export interface TransfersQueryResponse {
+    transfers: Array<Transfer>;
+}

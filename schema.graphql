@@ -105,5 +105,17 @@ type Currency @entity {
   inactiveAsks: [InactiveAsk!] @derivedFrom(field: "currency")
 }
 
+type Transfer @entity {
+    # txHash-logIndex
+    id: ID!
+
+    media: Media!
+    from: User!
+    to: User!
+
+    createdAtTimestamp: BigInt!
+    createdAtBlockNumber: BigInt!
+}
+
 
 
