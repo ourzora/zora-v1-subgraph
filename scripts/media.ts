@@ -18,6 +18,11 @@ import {
 } from "../utils/media";
 import {promises as fs} from "fs";
 import Decimal from "@zoralabs/media/dist/utils/Decimal";
+import crypto from 'crypto';
+import ipfsClient from 'ipfs-http-client';
+import fleekStorage from "@fleekhq/fleek-storage-js";
+import {MediaFactory} from "@zoralabs/media/dist/typechain";
+import type = Mocha.utils.type;
 
 
 async function start(){
@@ -35,11 +40,11 @@ async function start(){
     args.chainId === 1 ? '.prod' : args.chainId === 4 ? '.dev' : '.local'
   }`;
 
-  const sharedAddressPath = `${process.cwd()}/addresses/${args.chainId}.json`;
+  const sharedAddressPath = `${process.cwd()}/config/${args.chainId}.json`;
   // @ts-ignore
   const addressBook = JSON.parse(await fs.readFile(sharedAddressPath));
 
-  if (addressBook.media == null) {
+  if (addressBook.mediaAddress == null) {
     throw new Error("media address not specified in addressbook");
   }
 
@@ -65,8 +70,74 @@ async function start(){
 
   // switch statement for function with args
   switch (args.funcName){
+    case 'mintFromIPFS': {
+      // need an ipfs link
+      if (!args.ipfsPath){
+        throw new Error("--ipfsPath required");
+      }
+
+      const ipfsPath = args.ipfsPath;
+
+      if (!args.mimeType){
+        throw new Error("--mimeType required");
+      }
+
+      const mimeType = args.mimeType;
+
+      const fleekApiKey = process.env.FLEEK_API_KEY;
+      const fleekApiSecret = process.env.FLEEK_API_SECRET;
+
+      console.log(ipfsPath);
+
+      const result = await fleekStorage.getFileFromHash({
+        hash: ipfsPath,
+      })
+
+      //console.log(Buffer.concat(chunks).toString())
+      //console.log(Buffer.concat(chunks).toString());
+
+      const contentsha256 = crypto.createHash('sha256');
+      contentsha256.update(Buffer.from(result));
+      const contentHash = contentsha256.digest();
+
+      // create metadata json, upload to ipfs
+      const metadata = {
+        version: "0.0.1",
+        name: "Lorem Ipsum",
+        description: "Lorem Ipsum",
+        creator: wallet1.address,
+        mimeType: mimeType,
+      }
+
+      const metadataJson = JSON.stringify(metadata);
+
+      // hash the metadata
+      let metadataSha256 = crypto.createHash('sha256');
+      metadataSha256.update(Buffer.from(metadataJson));
+      let metadataHash = metadataSha256.digest();
+
+      const balance = await MediaFactory.connect(addressBook.mediaAddress, wallet1).balanceOf(wallet1.address);
+
+      const metadataCID = await fleekStorage.upload({
+        apiKey: fleekApiKey,
+        apiSecret: fleekApiSecret,
+        key: wallet1.address.concat('-').concat(balance.toString().concat("-").concat("metadata")),
+        data: metadataJson,
+      });
+
+      let mediaData = {
+        tokenURI: "https://ipfs.io/ipfs/".concat(ipfsPath),
+        metadataURI: "https://ipfs.io/ipfs/".concat(metadataCID.hash),
+        contentHash: Uint8Array.from(contentHash),
+        metadataHash: Uint8Array.from(metadataHash)
+      }
+
+      await mint(addressBook.mediaAddress, wallet1, mediaData);
+      break;
+      // mint
+    }
     case 'mint': {
-      const supply = (await totalSupply(addressBook.media, wallet1)).toNumber() + 1;
+      const supply = (await totalSupply(addressBook.mediaAddress, wallet1)).toNumber() + 1;
 
       const metadata = `metadatas:${supply}`;
       console.log("Metadata:", metadata);
@@ -89,7 +160,7 @@ async function start(){
         metadataHash: metadataHashBytes
       }
 
-      await mint(addressBook.media, wallet1, mediaData);
+      await mint(addressBook.mediaAddress, wallet1, mediaData);
       break;
     }
     case 'burn': {
@@ -100,7 +171,7 @@ async function start(){
       const tokenId = BigNumber.from(args.tokenId);
       console.log(tokenId)
 
-      await burn(addressBook.media, wallet1, tokenId);
+      await burn(addressBook.mediaAddress, wallet1, tokenId);
       break;
     }
     case 'updateTokenURI': {
@@ -115,7 +186,7 @@ async function start(){
 
       const tokenURI = args.uri.toString();
 
-      await updateTokenURI(addressBook.media, wallet1, tokenId, tokenURI);
+      await updateTokenURI(addressBook.mediaAddress, wallet1, tokenId, tokenURI);
       break;
     }
     case 'updateTokenMetadataURI': {
@@ -130,7 +201,7 @@ async function start(){
 
       const tokenMetadataURI = args.uri.toString();
 
-      await updateTokenMetadataURI(addressBook.media, wallet1, tokenId, tokenMetadataURI);
+      await updateTokenMetadataURI(addressBook.mediaAddress, wallet1, tokenId, tokenMetadataURI);
       break;
     }
     case 'approve': {
@@ -146,7 +217,7 @@ async function start(){
 
       const toAddress = args.to.toString();
       console.log(toAddress);
-      await approve(addressBook.media, wallet1, tokenId, toAddress);
+      await approve(addressBook.mediaAddress, wallet1, tokenId, toAddress);
       break;
     }
     case 'approveForAll': {
@@ -167,7 +238,7 @@ async function start(){
         approved = true;
       }
 
-      await approveForAll(addressBook.media, wallet1, operator, approved);
+      await approveForAll(addressBook.mediaAddress, wallet1, operator, approved);
       break;
     }
     case 'transfer': {
@@ -183,7 +254,7 @@ async function start(){
 
       const to = args.to;
 
-      let txHash = await transfer(addressBook.media, wallet1, tokenId, to);
+      let txHash = await transfer(addressBook.mediaAddress, wallet1, tokenId, to);
       let receipt = await provider.getTransactionReceipt(txHash);
       receipt.logs.forEach((log) =>{
         console.log(log);
@@ -204,7 +275,7 @@ async function start(){
         sellOnShare: Decimal.new(10),
       }
 
-      await setAsk(addressBook.media, wallet1, tokenId, defaultAsk);
+      await setAsk(addressBook.mediaAddress, wallet1, tokenId, defaultAsk);
       break;
     }
     case 'removeAsk': {
@@ -213,7 +284,7 @@ async function start(){
       }
       const tokenId = BigNumber.from(args.tokenId);
 
-      await removeAsk(addressBook.media, wallet1, tokenId);
+      await removeAsk(addressBook.mediaAddress, wallet1, tokenId);
       break;
     }
     case `setBid`: {
@@ -231,7 +302,7 @@ async function start(){
         bidder: wallet1.address
       }
 
-      await setBid(addressBook.media, wallet2, tokenId, defaultBid);
+      await setBid(addressBook.mediaAddress, wallet2, tokenId, defaultBid);
       break;
     }
     case `removeBid`: {
@@ -240,7 +311,7 @@ async function start(){
       }
 
       const tokenId = BigNumber.from(args.tokenId);
-      await removeBid(addressBook.media, wallet2, tokenId);
+      await removeBid(addressBook.mediaAddress, wallet2, tokenId);
       break;
     }
   }

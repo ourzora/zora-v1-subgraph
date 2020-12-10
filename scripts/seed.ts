@@ -8,7 +8,7 @@ import sha256 from 'crypto-js/sha256';
 import crypto from 'crypto';
 import axios from 'axios';
 import fleekStorage from '@fleekhq/fleek-storage-js'
-import {mint, removeAsk, setAsk, setBid, totalSupply} from '../utils/media';
+import {mint, removeAsk, setAsk, setBid, totalSupply, transfer} from '../utils/media';
 import {MediaFactory} from "@zoralabs/media/dist/typechain";
 import {MediaData} from "../utils/types";
 import Decimal from "@zoralabs/media/dist/utils/Decimal";
@@ -71,6 +71,8 @@ async function startSeed(){
     await setRandomBids(generatedWallets(provider), mediaAddress, currencyAddress);
   } else if (args.removeAsks){
       await removeAsks(generatedWallets(provider), mediaAddress);
+  } else if (args.transfers){
+    await randomTransfers(generatedWallets(provider), mediaAddress);
   }
 }
 
@@ -229,6 +231,26 @@ async function removeAsks(wallets: Array<Wallet>, mediaAddress: string){
     }
   }
 }
+
+async function randomTransfers(wallets: Array<Wallet>, mediaAddress: string){
+  for(const wallet of wallets){
+    const media = MediaFactory.connect(mediaAddress, wallet);
+
+    const numTokens = await media.balanceOf(wallet.address);
+    const rand = getRandomInt(numTokens.toNumber());
+    const tokenId = await media.tokenOfOwnerByIndex(wallet.address, rand);
+    const randWalletId = getRandomInt(9);
+    console.log(`Transferring ${tokenId} from ${wallet.address} to ${wallets[randWalletId].address}.`);
+    await transfer(mediaAddress, wallet, tokenId, wallets[randWalletId].address);
+    await delay(3000);
+  }
+}
+
+async function randomMedia(wallets: Array<Wallet>, mediaAddress: string){
+
+
+}
+
 
 startSeed().catch((e: Error) => {
   console.error(e);
