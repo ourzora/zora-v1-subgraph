@@ -108,7 +108,6 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
     let operatorAddr = event.params.operator.toHexString();
     let approved = event.params.approved;
 
-
     log.info(`Starting handler for ApprovalForAll Event for owner: {}, operator: {}, approved: {}`, [ownerAddr, operatorAddr, approved.toString()])
 
     let owner = findOrCreateUser(ownerAddr);
