@@ -1,6 +1,6 @@
 # Zora V1 Subgraph
 
-A subgraph implementation for the V1 of the Zora Protocol
+A subgraph implementation for V1 of the Zora Protocol
 
 ## Local Setup
 
@@ -43,8 +43,8 @@ Hint:
 - Copy / Paste `http://0.0.0.0:8545` as RPC_ENDPOINT
 - Copy / Paste the first Private Key from `@zoralabs/core/dist/utils/generatedWallets` as PK.
 - Set `PATH_TO_GRAPH` as the path to the dir of the `graph-node` repository you just cloned.
-- Set `FLEEK_API_KEY` to a key ethan gives you
-- Set `FLEEK_API_SECRET` to a secret ethan gives you
+- Set `FLEEK_API_KEY`
+- Set `FLEEK_API_SECRET`
 
 ```
 yarn deploy-contracts --chainId 50
@@ -71,7 +71,7 @@ yarn seed-graph --chainId 50 --fullMonty
 Open `http://127.0.0.1:8000/` in your browser to get a GraphiQL interface to submit
 queries to the subgraph.
 
-You can execute contract functions using the various scripts n `scripts`.
+You can execute contract functions using the various scripts in `scripts`.
 
 Run them by executing `yarn ts-node scripts/<script name> --chainId <chainID> <args>`
 
@@ -99,20 +99,23 @@ They may take up to 30 minutes to run.
 
 There are many scripts that can be run to customize the data populated in your contracts / subgraph.
 
+**Note**: In order to mint the scripts rely on Fleek as an IPFS pinning service to pin media to ipfs. Minting scripts will not work without Fleek Setup.
+
 In `seed.ts` you have the following options to run for all of the generatedWallets
 - `--fullyMonty` will deploy a new currency contract, mint currency, approve currency, mintMedia, setRandomAsks, and setRandomBids
 - `--asks` will set random asks on all the media minted by the generatedWallets
 - `--bids` will set random bids on 1 piece of media for each wallet in generatedWallets
 - `--transfers` will randomly transfer 1 piece of media from each wallet to a randomly selected wallet in generatedWallets
-- (SOON) `--betterMint` will mint a piece of media of each mime type for each wallet. 
-
+- `--removeBids` will remove random bids from Media
+- `--accceptRandomBids` will randomly accept bids on Media if they exist
+- `--currency` will create a new ERC20 with specified name and symbol and mint funds to each generated wallet of the provider and approve the market contract to transfer
+- `--mintCurToAddr` will mint the currency to the specified address
 In `media.ts` you can interact directly with the contracts by passing `--funcName` and the name of the function.
 You can also mint any media that currently already lives on ipfs by passing in `--funcName mintFromIPFS --mimeType <mimeType`
 
 Example: 
 
 ```bash
-
 yarn ts-node scripts/media --chainId 4 --funcName mintFromIPFS --ipfsPath Qmba649sCjuvUk6cY8ca9roFWHdXA7Cp2Ka66SmBdhJy9Y/snowbringerpix.gif --mimeType image/gif
-
+yarn ts-node scripts/seed --chainId 4 --fullyMonty
 ```

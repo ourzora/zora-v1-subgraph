@@ -21,6 +21,9 @@ import Decimal from '@zoralabs/core/dist/utils/Decimal'
 import crypto from 'crypto'
 import fleekStorage from '@fleekhq/fleek-storage-js'
 import { MediaFactory } from '@zoralabs/core/dist/typechain'
+import { sha256FromFile } from '../utils/utils'
+import { generateMetadata } from '@zoralabs/zdk'
+import randomWords from 'random-words'
 
 async function start() {
   const args = require('minimist')(process.argv.slice(2))
@@ -77,33 +80,31 @@ async function start() {
       const fleekApiKey = process.env.FLEEK_API_KEY
       const fleekApiSecret = process.env.FLEEK_API_SECRET
 
-      console.log(ipfsPath)
-
       const result = await fleekStorage.getFileFromHash({
         hash: ipfsPath,
+        getFileFromHashOptions: ['buffer'],
       })
-
-      //console.log(Buffer.concat(chunks).toString())
-      //console.log(Buffer.concat(chunks).toString());
 
       const contentsha256 = crypto.createHash('sha256')
       contentsha256.update(Buffer.from(result))
       const contentHash = contentsha256.digest()
 
+      const randomName = randomWords({ min: 2, max: 5, join: ' ' })
+      const randomDescription = randomWords({ exactly: 10, join: ' ' })
+
       // create metadata json, upload to ipfs
       const metadata = {
-        version: '0.0.1',
-        name: 'Lorem Ipsum',
-        description: 'Lorem Ipsum',
-        creator: wallet1.address,
+        version: 'zora-20210101',
+        name: randomName,
+        description: randomDescription,
         mimeType: mimeType,
       }
 
-      const metadataJson = JSON.stringify(metadata)
+      const minified = generateMetadata(metadata.version, metadata)
 
       // hash the metadata
       let metadataSha256 = crypto.createHash('sha256')
-      metadataSha256.update(Buffer.from(metadataJson))
+      metadataSha256.update(Buffer.from(minified))
       let metadataHash = metadataSha256.digest()
 
       const balance = await MediaFactory.connect(
@@ -120,7 +121,7 @@ async function start() {
             .concat('-')
             .concat('metadata')
         ),
-        data: metadataJson,
+        data: minified,
       })
 
       let mediaData = {
@@ -133,6 +134,86 @@ async function start() {
       await mint(addressBook.mediaAddress, wallet1, mediaData)
       break
       // mint
+    }
+    case 'mintFromFile': {
+      // need an ipfs link
+      if (!args.filePath) {
+        throw new Error('--filePath required')
+      }
+
+      const filePath = args.filePath
+
+      if (!args.mimeType) {
+        throw new Error('--mimeType required')
+      }
+
+      if (!args.name) {
+        throw new Error('--name required')
+      }
+
+      if (!args.description) {
+        throw new Error('--description required')
+      }
+
+      const mimeType = args.mimeType
+
+      const fleekApiKey = process.env.FLEEK_API_KEY
+      const fleekApiSecret = process.env.FLEEK_API_SECRET
+
+      const contentHash = await sha256FromFile(filePath, 16)
+      console.log(contentHash)
+
+      const buf = await fs.readFile(filePath)
+      const balance = await MediaFactory.connect(
+        addressBook.mediaAddress,
+        wallet1
+      ).balanceOf(wallet1.address)
+
+      const contentCID = await fleekStorage.upload({
+        apiKey: fleekApiKey,
+        apiSecret: fleekApiSecret,
+        key: wallet1.address.concat('-').concat(balance.toString().concat('-')),
+        data: buf,
+      })
+
+      const metadata = {
+        name: args.name,
+        description: args.description,
+        mimeType: mimeType,
+        version: 'zora-20210101',
+      }
+
+      const metadataJson = JSON.stringify(metadata)
+
+      // hash the metadata
+      const minified = generateMetadata(metadata.version, metadata)
+
+      // hash the metadata
+      let metadataSha256 = crypto.createHash('sha256')
+      metadataSha256.update(Buffer.from(minified))
+      let metadataHash = metadataSha256.digest()
+
+      const metadataCID = await fleekStorage.upload({
+        apiKey: fleekApiKey,
+        apiSecret: fleekApiSecret,
+        key: wallet1.address.concat('-').concat(
+          balance
+            .toString()
+            .concat('-')
+            .concat('metadata')
+        ),
+        data: minified,
+      })
+
+      let mediaData = {
+        tokenURI: 'https://ipfs.io/ipfs/'.concat(contentCID.hash),
+        metadataURI: 'https://ipfs.io/ipfs/'.concat(metadataCID.hash),
+        contentHash: Uint8Array.from(Buffer.from(contentHash, 'hex')),
+        metadataHash: Uint8Array.from(metadataHash),
+      }
+
+      await mint(addressBook.mediaAddress, wallet1, mediaData)
+      break
     }
     case 'mint': {
       const supply = (await totalSupply(addressBook.mediaAddress, wallet1)).toNumber() + 1
