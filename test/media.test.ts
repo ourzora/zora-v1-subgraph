@@ -201,6 +201,9 @@ describe("Media", async () => {
 
     let contentHash: Bytes;
     let metadataHash: Bytes;
+    let currencyDecimals: number;
+    let currencyName: string;
+    let currencySymbol: string;
 
     beforeEach(async () => {
         // reset blockchain and deploy
@@ -231,6 +234,11 @@ describe("Media", async () => {
         console.log("Deploying Subgraph");
         await system(`yarn deploy-local`);
         console.log("Successfully Deployed Subgraph");
+
+        let currencyFactory = BaseErc20Factory.connect(currencyAddress, creatorWallet);
+        currencyName = await currencyFactory.name();
+        currencySymbol = await currencyFactory.symbol();
+        currencyDecimals = await currencyFactory.decimals();
     });
 
     describe("#mint", async () => {
@@ -550,6 +558,16 @@ describe("Media", async () => {
             expect(ask.amount).toBe(toNumWei(onChainAsk.amount).toString());
             expect(ask.createdAtTimestamp).not.toBeNull();
             expect(ask.createdAtBlockNumber).not.toBeNull();
+
+            // it creates a currency
+            let currencyResponse: CurrencyQueryResponse = await request(gqlURL, currencyByIdQuery(currencyAddress.toLowerCase()));
+            let currency = currencyResponse.currency;
+
+            expect(currency.id).toBe(currencyAddress.toLowerCase());
+            expect(currency.liquidity).toBe("0");
+            expect(currency.name).toBe(currencyName);
+            expect(currency.decimals).toBe(currencyDecimals);
+            expect(currency.symbol).toBe(currencySymbol);
         })
     });
 
@@ -618,8 +636,12 @@ describe("Media", async () => {
 
             let currencyResponse: CurrencyQueryResponse = await request(gqlURL, currencyByIdQuery(currencyAddress.toLowerCase()));
             let currency = currencyResponse.currency;
+
             expect(currency.id).toBe(currencyAddress.toLowerCase());
             expect(currency.liquidity).toBe(toNumWei(onChainBid.amount).toString());
+            expect(currency.name).toBe(currencyName);
+            expect(currency.decimals).toBe(currencyDecimals);
+            expect(currency.symbol).toBe(currencySymbol);
 
             let bidId = "0".concat("-").concat(otherWallet.address.toLowerCase());
 

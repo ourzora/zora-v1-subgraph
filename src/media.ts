@@ -139,7 +139,7 @@ function handleMint(event: Transfer): void {
     let contentHash = mediaContract.tokenContentHashes(tokenId);
     let metadataHash = mediaContract.tokenMetadataHashes(tokenId);
 
-    let bidShares = fetchMediaBidShares(tokenId);
+    let bidShares = fetchMediaBidShares(tokenId, event.address);
 
     let media = createMedia(
         tokenId.toString(),

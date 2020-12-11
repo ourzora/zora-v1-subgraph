@@ -105,7 +105,7 @@ async function mintMedia(provider: JsonRpcProvider, mediaAddress: string, fleekA
   let picsumIds = new Set();
 
   for (const wallet of generatedWallets(provider)){
-    for(let i=0;i<10;i++){
+    for(let i=0;i<2;i++){
       let response = await axios.get("https://picsum.photos/200/300", { responseType: 'arraybuffer'});
       let picsumId = response.headers['picsum-id'];
 

@@ -96,6 +96,15 @@ type Currency @entity {
   # address
   id: ID!
 
+  # name
+  name: String!
+
+  # symbol
+  symbol: String!
+
+  # decimals
+  decimals: Int
+
   # total liquidity across bids of all media
   liquidity: BigInt!
 
