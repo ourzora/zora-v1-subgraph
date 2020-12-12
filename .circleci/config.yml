@@ -1,0 +1,22 @@
+version: 2.1
+jobs:
+  test:
+    executor:
+      name: node/default
+      tag: '12.6'
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          command: yarn codegen
+          name: Create Types
+      - run:
+          command: yarn build
+          name: Build
+orbs:
+  node: circleci/node@4.1.0
+workflows:
+  build_subgraph:
+    jobs:
+      - build
