@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  test:
+  build:
     executor:
       name: node/default
       tag: '12.6'
