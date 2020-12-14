@@ -1,13 +1,16 @@
 version: 2.1
 jobs:
-  test:
+  build:
     executor:
       name: node/default
-      tag: '12.6'
+      tag: '14.15.1'
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: yarn
+      - run:
+          command: yarn prepare:rinkeby
+          name: Create Subgraph Yaml for Rinkeby
       - run:
           command: yarn codegen
           name: Create Types
@@ -19,4 +22,7 @@ orbs:
 workflows:
   build_subgraph:
     jobs:
-      - build
+      - build:
+          pre-steps:
+            - run:
+                command: echo "registry=https://registry.npmjs.org/" > ~/.npmrc && echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
