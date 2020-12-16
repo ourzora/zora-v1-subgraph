@@ -1,11 +1,43 @@
+env_defaults: &env_defaults
+  working_directory: ~
+  docker:
+    - image: circleci/node:14.15.1
+
 version: 2.1
 jobs:
-  build:
-    executor:
-      name: node/default
-      tag: '14.15.1'
+  prepare:
+    <<: *env_defaults
     steps:
       - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1.0-dependencies-{{ checksum "yarn.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1.0-dependencies-
+
+      - node/install-packages:
+          pkg-manager: yarn
+
+      - run: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1.0-dependencies-{{ checksum "yarn.lock" }}
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
+
+  build:
+    <<: *env_defaults
+    steps:
+      - checkout
+      - attach_workspace:
+            at: .
       - node/install-packages:
           pkg-manager: yarn
       - run:
@@ -17,12 +49,13 @@ jobs:
       - run:
           command: yarn build
           name: Build
+
   deploy_rinkeby:
-    executor:
-      name: node/default
-      tag: '14.15.1'
+    <<: *env_defaults
     steps:
       - checkout
+      - attach_workspace:
+            at: .
       - run:
             command: yarn prepare:rinkeby
             name: Create Subgraph for Rinkeby
@@ -33,10 +66,13 @@ orbs:
 workflows:
   build_and_deploy:
     jobs:
+      - prepare:
+          pre-steps:
+            - run:
+                command: echo "registry=https://registry.npmjs.org/" > ~/.npmrc && echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
       - build:
-            pre-steps:
-              - run:
-                  command: echo "registry=https://registry.npmjs.org/" > ~/.npmrc && echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+          requires:
+            - prepare
       - deploy_rinkeby:
           requires:
             - build
