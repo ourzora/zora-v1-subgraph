@@ -9,20 +9,38 @@ jobs:
       - node/install-packages:
           pkg-manager: yarn
       - run:
-          command: yarn prepare:rinkeby
-          name: Create Subgraph Yaml for Rinkeby
+          command: yarn prepare:local
+          name: Create Subgraph for Local
       - run:
           command: yarn codegen
           name: Create Types
       - run:
           command: yarn build
           name: Build
+  deploy_rinkeby:
+    executor:
+      name: node/default
+      tag: '14.15.1'
+    steps:
+      - checkout
+      - run:
+            command: yarn prepare:rinkeby
+            name: Create Subgraph for Rinkeby
+      - run:
+          command: graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $GRAPH_ACCESS_TOKEN sporkspatula/zora-rinkeby1
 orbs:
   node: circleci/node@4.1.0
 workflows:
-  build_subgraph:
+  build_and_deploy:
     jobs:
       - build:
-          pre-steps:
-            - run:
-                command: echo "registry=https://registry.npmjs.org/" > ~/.npmrc && echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+            pre-steps:
+              - run:
+                  command: echo "registry=https://registry.npmjs.org/" > ~/.npmrc && echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+      - deploy_rinkeby:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+
