@@ -174,7 +174,6 @@ export function createAsk(
     id: string,
     amount: BigInt,
     currency: Currency,
-    sellOnShare: BigInt,
     media: Media,
     createdAtTimestamp: BigInt,
     createdAtBlockNumber: BigInt
@@ -182,7 +181,6 @@ export function createAsk(
     let ask = new Ask(id);
     ask.amount = amount;
     ask.currency = currency.id;
-    ask.sellOnShare = sellOnShare;
     ask.media = media.id;
     ask.owner = media.owner;
     ask.createdAtTimestamp = createdAtTimestamp;
@@ -198,7 +196,6 @@ export function createInactiveAsk(
     type: string,
     amount: BigInt,
     currency: Currency,
-    sellOnShare: BigInt,
     owner: string,
     createdAtTimestamp: BigInt,
     createdAtBlockNumber: BigInt
@@ -209,7 +206,6 @@ export function createInactiveAsk(
     inactiveAsk.media = media.id;
     inactiveAsk.amount = amount;
     inactiveAsk.currency = currency.id;
-    inactiveAsk.sellOnShare = sellOnShare;
     inactiveAsk.owner = owner;
     inactiveAsk.createdAtTimestamp = createdAtTimestamp;
     inactiveAsk.createdAtBlockNumber = createdAtBlockNumber;

@@ -40,7 +40,6 @@ type Ask @entity {
   media: Media!
   amount: BigInt!
   currency: Currency!
-  sellOnShare: BigInt!
   owner: User!
 
   createdAtTimestamp: BigInt!
@@ -85,7 +84,6 @@ type InactiveAsk @entity {
   type: MarketEventType!
   amount: BigInt!
   currency: Currency!
-  sellOnShare: BigInt!
   owner: User!
 
   createdAtTimestamp: BigInt!
@@ -115,7 +113,6 @@ type Currency @entity {
 }
 
 type Transfer @entity {
-    # txHash-logIndex
     id: ID!
 
     media: Media!

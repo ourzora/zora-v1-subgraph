@@ -61,7 +61,6 @@ describe("Media", async () => {
     let defaultAsk = (currencyAddress: string) =>({
         currency: currencyAddress, // DAI
         amount: Decimal.new(10).value,
-        sellOnShare: Decimal.new(10),
     })
 
     const defaultBid = (
@@ -71,7 +70,7 @@ describe("Media", async () => {
         amountValue?: number,
         sellOnShareValue?: number
     ) => ({
-        currency: currency, // DAI
+        currency: currency,
         amount: Decimal.new(amountValue || 9).value,
         sellOnShare: Decimal.new(sellOnShareValue || 9),
         bidder: bidder,
@@ -553,7 +552,6 @@ describe("Media", async () => {
             let ask = askResponse.ask;
             expect(ask.id).toBe(askId);
             expect(ask.owner.id).toBe(creatorWallet.address.toLowerCase());
-            expect(ask.sellOnShare).toBe(toNumWei(onChainAsk.sellOnShare.value).toString());
             expect(ask.currency.id).toBe(onChainAsk.currency.toLowerCase());
             expect(ask.amount).toBe(toNumWei(onChainAsk.amount).toString());
             expect(ask.createdAtTimestamp).not.toBeNull();
@@ -601,7 +599,6 @@ describe("Media", async () => {
             expect(inactiveAsks[0].media.id).toBe("0");
             expect(inactiveAsks[0].amount).toBe(toNumWei(onChainAsk.amount).toString());
             expect(inactiveAsks[0].currency.id).toBe(onChainAsk.currency.toLowerCase());
-            expect(inactiveAsks[0].sellOnShare).toBe(toNumWei(onChainAsk.sellOnShare.value).toString());
             expect(inactiveAsks[0].owner.id).toBe(creatorWallet.address.toLowerCase());
 
             //setAsk with new user -> transfer removes ask and creates inActiveAsk

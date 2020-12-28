@@ -69,7 +69,6 @@ export interface Ask {
     media: Media;
     amount: BigInt;
     currency: Currency;
-    sellOnShare: BigInt;
     owner: User;
     createdAtTimestamp: BigInt;
     createdAtBlockNumber: BigInt;
@@ -89,7 +88,6 @@ export interface InactiveAsk {
     media: Media;
     amount: BigInt;
     currency: Currency;
-    sellOnShare: BigInt;
     owner: User;
     createdAtTimestamp: BigInt;
     createdAtBlockNumber: BigInt;

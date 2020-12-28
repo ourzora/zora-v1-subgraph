@@ -51,7 +51,6 @@ export function handleAskCreated(event: AskCreated): void {
         askId,
         onchainAsk.amount,
         currency,
-        onchainAsk.sellOnShare.value,
         media as Media,
         event.block.timestamp,
         event.block.number
@@ -93,7 +92,6 @@ export function handleAskRemoved(event: AskRemoved): void {
             REMOVED,
             ask.amount,
             currency,
-            ask.sellOnShare,
             ask.owner,
             event.block.timestamp,
             event.block.number

@@ -69,7 +69,6 @@ export function askByIdQuery(id: string): string {
                 currency {
                   id
                 }
-                sellOnShare
                 owner {
                   id
                 }
@@ -94,7 +93,6 @@ export function inactiveAsksByMediaIdQuery(mediaId: string): string {
                 currency {
                   id
                 }
-                sellOnShare
                 owner {
                   id
                 }

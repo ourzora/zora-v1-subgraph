@@ -60,9 +60,9 @@ dataSources:
       eventHandlers:
         - event: BidShareUpdated(indexed uint256,((uint256),(uint256),(uint256)))
           handler: handleBidShareUpdated
-        - event: AskCreated(indexed uint256,(uint256,address,(uint256)))
+        - event: AskCreated(indexed uint256,(uint256,address))
           handler: handleAskCreated
-        - event: AskRemoved(indexed uint256,(uint256,address,(uint256)))
+        - event: AskRemoved(indexed uint256,(uint256,address))
           handler: handleAskRemoved
         - event: BidCreated(indexed uint256,(uint256,address,address,address,(uint256)))
           handler: handleBidCreated
