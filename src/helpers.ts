@@ -7,7 +7,8 @@ import {
     InactiveAsk,
     InactiveBid,
     Currency,
-    Transfer
+    Transfer,
+    URIUpdate
 } from '../types/schema';
 import {Media as MediaContract} from '../types/Media/Media'
 import {Market as MarketContract} from '../types/Market/Market';
@@ -283,6 +284,31 @@ export function createTransfer(
 
     transfer.save();
     return transfer;
+}
+
+export function createURIUpdate(
+    id: string,
+    media: Media,
+    type: string,
+    from: string,
+    to: string,
+    updater: string,
+    owner: string,
+    createdAtTimestamp: BigInt,
+    createdAtBlockNumber: BigInt
+): URIUpdate {
+    let uriUpdate = new URIUpdate(id);
+    uriUpdate.media = media.id;
+    uriUpdate.type = type;
+    uriUpdate.from = from;
+    uriUpdate.to = to;
+    uriUpdate.updater = updater;
+    uriUpdate.owner = owner;
+    uriUpdate.createdAtTimestamp = createdAtTimestamp;
+    uriUpdate.createdAtBlockNumber = createdAtBlockNumber;
+
+    uriUpdate.save();
+    return uriUpdate;
 }
 
 

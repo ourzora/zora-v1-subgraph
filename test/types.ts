@@ -146,3 +146,19 @@ export interface Transfer {
 export interface TransfersQueryResponse {
     transfers: Array<Transfer>;
 }
+
+export interface URIUpdate {
+    id: string;
+    type: string;
+    from: string;
+    to: string;
+    media: Media;
+    owner: User;
+    updater: User;
+    createdAtTimestamp: BigInt;
+    createdAtBlockNumber: BigInt;
+}
+
+export interface URIUpdatesQueryResponse {
+    uriupdates: Array<URIUpdate>;
+}

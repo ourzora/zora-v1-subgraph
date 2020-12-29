@@ -253,3 +253,47 @@ export function transfersByToIdQuery(toId: string): string {
         }
     `
 }
+
+export function uriUpdatesByMediaIdQuery(mediaId: string): string {
+    return gql`
+        {
+            uriupdates(where: { media: "${mediaId}"}){
+                id 
+                type
+                media {
+                    id
+                }
+                from
+                to
+                owner {
+                    id
+                }
+                updater {
+                    id
+                }
+            }
+        }
+    `
+}
+
+export function uriUpdatesByUpdaterIdQuery(updaterId: string): string {
+    return gql`
+        {
+            uriupdates(where: { updater: "${updaterId}" }){
+                id 
+                type
+                media {
+                    id
+                }
+                from
+                to
+                owner {
+                    id
+                }
+                updater {
+                    id
+                }
+            }
+        }
+    `
+}

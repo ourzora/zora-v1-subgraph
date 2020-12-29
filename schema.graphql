@@ -123,5 +123,22 @@ type Transfer @entity {
     createdAtBlockNumber: BigInt!
 }
 
+enum UpdateType {
+  Content
+  Metadata
+}
+
+type URIUpdate @entity {
+    id: ID!
+    type: UpdateType!
+    from: String!
+    to: String!
+    media: Media!
+    owner: User!
+    updater: User!
+    createdAtTimestamp: BigInt!
+    createdAtBlockNumber: BigInt!
+}
+
 
 
