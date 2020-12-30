@@ -185,6 +185,7 @@ async function start(){
       }
 
       const tokenURI = args.uri.toString();
+      console.log(addressBook.mediaAddress);
 
       await updateTokenURI(addressBook.mediaAddress, wallet1, tokenId, tokenURI);
       break;

@@ -69,7 +69,6 @@ export interface Ask {
     media: Media;
     amount: BigInt;
     currency: Currency;
-    sellOnShare: BigInt;
     owner: User;
     createdAtTimestamp: BigInt;
     createdAtBlockNumber: BigInt;
@@ -89,7 +88,6 @@ export interface InactiveAsk {
     media: Media;
     amount: BigInt;
     currency: Currency;
-    sellOnShare: BigInt;
     owner: User;
     createdAtTimestamp: BigInt;
     createdAtBlockNumber: BigInt;
@@ -147,4 +145,20 @@ export interface Transfer {
 
 export interface TransfersQueryResponse {
     transfers: Array<Transfer>;
+}
+
+export interface URIUpdate {
+    id: string;
+    type: string;
+    from: string;
+    to: string;
+    media: Media;
+    owner: User;
+    updater: User;
+    createdAtTimestamp: BigInt;
+    createdAtBlockNumber: BigInt;
+}
+
+export interface URIUpdatesQueryResponse {
+    uriupdates: Array<URIUpdate>;
 }

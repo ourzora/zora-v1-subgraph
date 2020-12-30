@@ -19,7 +19,7 @@ import {
     MediaQueryResponse,
     UserQueryResponse,
     Currency,
-    CurrencyQueryResponse, TransfersQueryResponse
+    CurrencyQueryResponse, TransfersQueryResponse, URIUpdatesQueryResponse
 } from "./types";
 import {
     askByIdQuery,
@@ -28,7 +28,12 @@ import {
     inactiveAsksByMediaIdQuery,
     mediaByIdQuery,
     userByIdQuery,
-    currencyByIdQuery, transfersByMediaIdQuery, transfersByFromIdQuery, transfersByToIdQuery
+    currencyByIdQuery,
+    transfersByMediaIdQuery,
+    transfersByFromIdQuery,
+    transfersByToIdQuery,
+    uriUpdatesByMediaIdQuery,
+    uriUpdatesByUpdaterIdQuery
 } from "./queries";
 import {exponentialDelay, delay, randomHashBytes, toNumWei} from "./utils";
 import {BaseErc20Factory} from "@zoralabs/media/dist/typechain";
@@ -61,7 +66,6 @@ describe("Media", async () => {
     let defaultAsk = (currencyAddress: string) =>({
         currency: currencyAddress, // DAI
         amount: Decimal.new(10).value,
-        sellOnShare: Decimal.new(10),
     })
 
     const defaultBid = (
@@ -71,7 +75,7 @@ describe("Media", async () => {
         amountValue?: number,
         sellOnShareValue?: number
     ) => ({
-        currency: currency, // DAI
+        currency: currency,
         amount: Decimal.new(amountValue || 9).value,
         sellOnShare: Decimal.new(sellOnShareValue || 9),
         bidder: bidder,
@@ -438,19 +442,43 @@ describe("Media", async () => {
             metadataHash = await randomHashBytes();
             // mint (transfer from 0x000 to address)
             await mint(creatorWallet, contentHash, metadataHash);
-            let mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
+            let mediaResponse: MediaQueryResponse = await request(gqlURL, mediaByIdQuery("0"));
             let media = mediaResponse.media;
 
             expect(media.id).toBe("0");
             expect(media.contentURI).toBe("example.com");
 
-            await updateTokenURI(creatorWallet, BigNumber.from(0), "blah blah");
+            await updateTokenURI(creatorWallet, BigNumber.from(0), "content blah blah");
 
             mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
             media = mediaResponse.media;
 
             expect(media.id).toBe("0");
-            expect(media.contentURI).toBe("blah blah");
+            expect(media.contentURI).toBe("content blah blah");
+
+            let uriUpdateResponse: URIUpdatesQueryResponse = await request(gqlURL, uriUpdatesByMediaIdQuery("0"));
+            let uriUpdates = uriUpdateResponse.uriupdates;
+
+            expect(uriUpdates.length).toBe(1);
+            expect(uriUpdates[0].from).toBe("example.com");
+            expect(uriUpdates[0].to).toBe("content blah blah");
+            expect(uriUpdates[0].type).toBe("Content");
+            expect(uriUpdates[0].owner.id).toBe(creatorWallet.address.toLowerCase());
+            expect(uriUpdates[0].updater.id).toBe(creatorWallet.address.toLowerCase());
+
+            // approve then update
+            await approve(creatorWallet, BigNumber.from(0), otherWallet.address);
+            await updateTokenURI(otherWallet, BigNumber.from(0), "other blah blah");
+
+            let otherUriUpdateResponse: URIUpdatesQueryResponse = await request(gqlURL, uriUpdatesByUpdaterIdQuery(otherWallet.address.toLowerCase()));
+            let otherUriUpdates = otherUriUpdateResponse.uriupdates;
+
+            expect(otherUriUpdates.length).toBe(1);
+            expect(otherUriUpdates[0].from).toBe("content blah blah");
+            expect(otherUriUpdates[0].to).toBe("other blah blah");
+            expect(otherUriUpdates[0].type).toBe("Content");
+            expect(otherUriUpdates[0].owner.id).toBe(creatorWallet.address.toLowerCase());
+            expect(otherUriUpdates[0].updater.id).toBe(otherWallet.address.toLowerCase());
         });
     })
     describe("#updateTokenMetadataURI", async () => {
@@ -458,7 +486,7 @@ describe("Media", async () => {
             contentHash = await randomHashBytes();
             metadataHash = await randomHashBytes();
             await mint(creatorWallet, contentHash, metadataHash);
-            let mediaResponse = await request(gqlURL, mediaByIdQuery("0"));
+            let mediaResponse: MediaQueryResponse = await request(gqlURL, mediaByIdQuery("0"));
             let media = mediaResponse.media;
 
             expect(media.id).toBe("0");
@@ -471,8 +499,33 @@ describe("Media", async () => {
 
             expect(media.id).toBe("0");
             expect(media.metadataURI).toBe("blah blah");
+
+            let uriUpdateResponse: URIUpdatesQueryResponse = await request(gqlURL, uriUpdatesByMediaIdQuery("0"));
+            let uriUpdates = uriUpdateResponse.uriupdates;
+
+            expect(uriUpdates.length).toBe(1);
+            expect(uriUpdates[0].from).toBe("metadata.com");
+            expect(uriUpdates[0].to).toBe("blah blah");
+            expect(uriUpdates[0].type).toBe("Metadata");
+            expect(uriUpdates[0].owner.id).toBe(creatorWallet.address.toLowerCase());
+            expect(uriUpdates[0].updater.id).toBe(creatorWallet.address.toLowerCase());
+
+            // approve then update
+            await approve(creatorWallet, BigNumber.from(0), otherWallet.address);
+            await updateTokenMetadataURI(otherWallet, BigNumber.from(0), "other blah blah");
+
+            let otherUriUpdateResponse: URIUpdatesQueryResponse = await request(gqlURL, uriUpdatesByUpdaterIdQuery(otherWallet.address.toLowerCase()));
+            let otherUriUpdates = otherUriUpdateResponse.uriupdates;
+
+            expect(otherUriUpdates.length).toBe(1);
+            expect(otherUriUpdates[0].from).toBe("blah blah");
+            expect(otherUriUpdates[0].to).toBe("other blah blah");
+            expect(otherUriUpdates[0].type).toBe("Metadata");
+            expect(otherUriUpdates[0].owner.id).toBe(creatorWallet.address.toLowerCase());
+            expect(otherUriUpdates[0].updater.id).toBe(otherWallet.address.toLowerCase());
         });
     })
+
     describe("#approve", async () => {
         it("it should correctly save the approval", async () => {
             contentHash = await randomHashBytes();
@@ -493,6 +546,7 @@ describe("Media", async () => {
             expect(media.approved.id).toBe(otherWallet.address.toLowerCase());
         });
     })
+
     describe("#setApprovalForAll", async () => {
         it("should correctly save the approval for all", async () => {
             contentHash = await randomHashBytes();
@@ -553,7 +607,6 @@ describe("Media", async () => {
             let ask = askResponse.ask;
             expect(ask.id).toBe(askId);
             expect(ask.owner.id).toBe(creatorWallet.address.toLowerCase());
-            expect(ask.sellOnShare).toBe(toNumWei(onChainAsk.sellOnShare.value).toString());
             expect(ask.currency.id).toBe(onChainAsk.currency.toLowerCase());
             expect(ask.amount).toBe(toNumWei(onChainAsk.amount).toString());
             expect(ask.createdAtTimestamp).not.toBeNull();
@@ -601,7 +654,6 @@ describe("Media", async () => {
             expect(inactiveAsks[0].media.id).toBe("0");
             expect(inactiveAsks[0].amount).toBe(toNumWei(onChainAsk.amount).toString());
             expect(inactiveAsks[0].currency.id).toBe(onChainAsk.currency.toLowerCase());
-            expect(inactiveAsks[0].sellOnShare).toBe(toNumWei(onChainAsk.sellOnShare.value).toString());
             expect(inactiveAsks[0].owner.id).toBe(creatorWallet.address.toLowerCase());
 
             //setAsk with new user -> transfer removes ask and creates inActiveAsk

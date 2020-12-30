@@ -51,7 +51,6 @@ export function handleAskCreated(event: AskCreated): void {
         askId,
         onchainAsk.amount,
         currency,
-        onchainAsk.sellOnShare.value,
         media as Media,
         event.block.timestamp,
         event.block.number
@@ -86,14 +85,13 @@ export function handleAskRemoved(event: AskRemoved): void {
             log.error("Ask is null for askId: {}", [askId])
         }
 
-        let inactiveAskId = event.transaction.hash.toHexString().concat("-").concat(event.transactionLogIndex.toString());
+        let inactiveAskId = tokenId.concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
         createInactiveAsk(
             inactiveAskId,
             media as Media,
             REMOVED,
             ask.amount,
             currency,
-            ask.sellOnShare,
             ask.owner,
             event.block.timestamp,
             event.block.number
@@ -160,7 +158,7 @@ export function handleBidRemoved(event: BidRemoved): void {
         log.error("Bid is null for bidId: {}", [bidId]);
     }
 
-    let inactiveBidId = event.transaction.hash.toHexString().concat("-").concat(event.transactionLogIndex.toString());
+    let inactiveBidId = tokenId.concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
     let bidder = findOrCreateUser(onChainBid.bidder.toHexString())
     let recipient = findOrCreateUser(onChainBid.recipient.toHexString());
     let currency = findOrCreateCurrency(onChainBid.currency.toHexString());
@@ -205,7 +203,7 @@ export function handleBidFinalized(event: BidFinalized): void {
         log.error("Bid is null for bidId: {}", [bidId]);
     }
 
-    let inactiveBidId = event.transaction.hash.toHexString().concat("-").concat(event.transactionLogIndex.toString());
+    let inactiveBidId = tokenId.concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
 
     let bidder = findOrCreateUser(onChainBid.bidder.toHexString())
     let recipient = findOrCreateUser(onChainBid.recipient.toHexString());

@@ -64,7 +64,7 @@ jobs:
             command: yarn prepare:rinkeby
             name: Create Subgraph for Rinkeby
       - run:
-          command: yarn graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $GRAPH_ACCESS_TOKEN sporkspatula/zora-rinkeby1
+          command: yarn graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $GRAPH_ACCESS_TOKEN ourzora/zora-rinkeby2
 orbs:
   node: circleci/node@4.1.0
 workflows:

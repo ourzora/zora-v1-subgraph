@@ -7,7 +7,8 @@ import {
     InactiveAsk,
     InactiveBid,
     Currency,
-    Transfer
+    Transfer,
+    URIUpdate
 } from '../types/schema';
 import {Media as MediaContract} from '../types/Media/Media'
 import {Market as MarketContract} from '../types/Market/Market';
@@ -174,7 +175,6 @@ export function createAsk(
     id: string,
     amount: BigInt,
     currency: Currency,
-    sellOnShare: BigInt,
     media: Media,
     createdAtTimestamp: BigInt,
     createdAtBlockNumber: BigInt
@@ -182,7 +182,6 @@ export function createAsk(
     let ask = new Ask(id);
     ask.amount = amount;
     ask.currency = currency.id;
-    ask.sellOnShare = sellOnShare;
     ask.media = media.id;
     ask.owner = media.owner;
     ask.createdAtTimestamp = createdAtTimestamp;
@@ -198,7 +197,6 @@ export function createInactiveAsk(
     type: string,
     amount: BigInt,
     currency: Currency,
-    sellOnShare: BigInt,
     owner: string,
     createdAtTimestamp: BigInt,
     createdAtBlockNumber: BigInt
@@ -209,7 +207,6 @@ export function createInactiveAsk(
     inactiveAsk.media = media.id;
     inactiveAsk.amount = amount;
     inactiveAsk.currency = currency.id;
-    inactiveAsk.sellOnShare = sellOnShare;
     inactiveAsk.owner = owner;
     inactiveAsk.createdAtTimestamp = createdAtTimestamp;
     inactiveAsk.createdAtBlockNumber = createdAtBlockNumber;
@@ -287,6 +284,31 @@ export function createTransfer(
 
     transfer.save();
     return transfer;
+}
+
+export function createURIUpdate(
+    id: string,
+    media: Media,
+    type: string,
+    from: string,
+    to: string,
+    updater: string,
+    owner: string,
+    createdAtTimestamp: BigInt,
+    createdAtBlockNumber: BigInt
+): URIUpdate {
+    let uriUpdate = new URIUpdate(id);
+    uriUpdate.media = media.id;
+    uriUpdate.type = type;
+    uriUpdate.from = from;
+    uriUpdate.to = to;
+    uriUpdate.updater = updater;
+    uriUpdate.owner = owner;
+    uriUpdate.createdAtTimestamp = createdAtTimestamp;
+    uriUpdate.createdAtBlockNumber = createdAtBlockNumber;
+
+    uriUpdate.save();
+    return uriUpdate;
 }
 
 

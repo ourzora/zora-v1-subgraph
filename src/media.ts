@@ -1,7 +1,18 @@
 import {Media, User} from "../types/schema";
 import {Media as MediaContract, Approval, ApprovalForAll, Transfer, TokenURIUpdated, TokenMetadataURIUpdated} from "../types/Media/Media";
 import {Address, Bytes, BigInt, log} from "@graphprotocol/graph-ts";
-import {findOrCreateUser, createMedia, fetchMediaBidShares, BidShares, zeroAddress, createTransfer} from './helpers';
+import {
+    findOrCreateUser,
+    createMedia,
+    fetchMediaBidShares,
+    BidShares,
+    zeroAddress,
+    createTransfer,
+    createURIUpdate
+} from './helpers';
+
+const CONTENT = "Content";
+const METADATA = "Metadata";
 
 export function handleTokenURIUpdated(event: TokenURIUpdated): void {
     let tokenId = event.params._tokenId.toString()
@@ -12,6 +23,21 @@ export function handleTokenURIUpdated(event: TokenURIUpdated): void {
     if (media == null){
         log.error("Media is null for tokenId: {}", [tokenId]);
     }
+
+    let updater = findOrCreateUser(event.params.owner.toHexString());
+    let uriUpdateId = tokenId.concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
+
+    createURIUpdate(
+        uriUpdateId,
+        media as Media,
+        CONTENT,
+        media.contentURI,
+        event.params._uri,
+        updater.id,
+        media.owner,
+        event.block.timestamp,
+        event.block.number
+    )
 
     media.contentURI = event.params._uri;
     media.save();
@@ -28,6 +54,21 @@ export function handleTokenMetadataURIUpdated(event: TokenMetadataURIUpdated): v
     if (media == null){
         log.error("Media is null for tokenId: {}", [tokenId]);
     }
+
+    let updater = findOrCreateUser(event.params.owner.toHexString());
+    let uriUpdateId = tokenId.concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
+
+    createURIUpdate(
+        uriUpdateId,
+        media as Media,
+        METADATA,
+        media.metadataURI,
+        event.params._uri,
+        updater.id,
+        media.owner,
+        event.block.timestamp,
+        event.block.number
+    )
 
     media.metadataURI = event.params._uri;
     media.save();

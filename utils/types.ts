@@ -3,7 +3,6 @@ import {BigNumberish, Bytes} from "ethers";
 export type SolidityAsk = {
     currency: string;
     amount: BigNumberish;
-    sellOnShare: { value: BigNumberish }
 }
 
 export type SolidityBid = {
