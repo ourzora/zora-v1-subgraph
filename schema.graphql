@@ -1,143 +1,280 @@
 type Media @entity {
+  "The tokenId on the Zora Media Contract"
   id: ID!
+
+  "The current owner of the Media"
   owner: User!
+
+  "The creator of the Media"
   creator: User!
+
+  "The previous owner of the Zora Media's Market"
   prevOwner: User!
+
+  "The approved user of the Media"
   approved: User
 
+  "The sha256 hash of the media's content"
   contentHash: Bytes!
+
+  "The sha256 hash of the media's metadata"
   metadataHash: Bytes!
+
+  "The uri of the content"
   contentURI: String!
+
+  "The uri of the metadata"
   metadataURI: String!
 
+  "The bid share for the current owner of the Media"
   ownerBidShare: BigInt!
+
+  "The bid share for the creator of the Media"
   creatorBidShare: BigInt!
+
+  "The bid share for the previous owner of the Media's market"
   prevOwnerBidShare: BigInt!
 
+  "The timestamp of the block the Media was minted in"
   createdAtTimestamp: BigInt!
+
+  "The number of the block the Media was minted in"
   createdAtBlockNumber: BigInt!
 
+  "The timestamp of the block the Media was burned in"
   burnedAtTimeStamp: BigInt
+
+  "The number of the block the Media was burned in"
   burnedAtBlockNumber: BigInt
 
+  "The current Ask of the Media"
   currentAsk: Ask @derivedFrom(field: "media")
+
+  "The current Bids on the Media"
   currentBids: [Bid!] @derivedFrom(field: "media")
 
+  "The InactiveAsks of the Media"
   inactiveAsks: [InactiveAsk!] @derivedFrom(field: "media")
+
+  "The InactiveBids of the Media"
   inactiveBids: [InactiveBid!] @derivedFrom(field: "media")
 }
 
 type User @entity {
+  "Ethereum Address"
   id: ID!
+
+  "Users that have been granted `ApprovalForAll` Media of the User's Collection"
   authorizedUsers: [User!]
+
+  "The Media the User owns"
   collection: [Media!]! @derivedFrom(field: "owner")
+
+  "The Media the User created"
   creations: [Media!]! @derivedFrom(field: "creator")
+
+  "The active Bids made by the User"
   currentBids: [Bid!] @derivedFrom(field: "bidder")
 }
 
 type Ask @entity {
+  "<tokenId>-<ownerAddress>"
   id: ID!
+
+  "The Media associated with the Ask"
   media: Media!
-  amount: BigInt!
+
+  "The Currency of the Ask"
   currency: Currency!
+
+  "The amount of Currency of the Ask"
+  amount: BigInt!
+
+  "The owner of the Ask"
   owner: User!
 
+  "The timestamp of the block the Ask was created in"
   createdAtTimestamp: BigInt!
+
+  "The number of the block the Ask created in"
   createdAtBlockNumber: BigInt!
 }
 
 type Bid @entity {
+  "<token-id>-<bidderAddress>"
   id: ID!
+
+  "The Media associated with the Bid"
   media: Media!
-  amount: BigInt!
+
+  "The Currency of the Bid"
   currency: Currency!
+
+  "The amount of Currency of the Bid"
+  amount: BigInt!
+
+  "The sellOnShare of the Bid"
   sellOnShare: BigInt!
+
+  "The bidder of the Bid"
   bidder: User!
+
+  "The recipient of Media if the Bid is accepted"
   recipient: User!
 
+  "The timestamp of the block the Bid was created in"
   createdAtTimestamp: BigInt!
+
+  "The number of the block the Bid was created in"
   createdAtBlockNumber: BigInt!
 }
 
+"The Types for MarketEvents (Asks, Bids)"
 enum MarketEventType {
   Finalized
   Removed
 }
 
 type InactiveBid @entity {
+  "<tokenId>-<transactionHash>-<logIndex>"
   id: ID!
+
+  "The Media associated with the InactiveBid"
   media: Media!
+
+  "The reason why this Bid is Inactive"
   type: MarketEventType!
-  amount: BigInt!
+
+  "The Currency of the InactiveBid"
   currency: Currency!
+
+  "The amount of Currency of the InactiveBid"
+  amount: BigInt!
+
+  "The sellOnShare of the InactiveBid"
   sellOnShare: BigInt!
+
+  "The bidder of the InactiveBid"
   bidder: User!
+
+  "The recipient of the InactiveBid"
   recipient: User!
 
+  "The timestamp of the block the InactiveBid was created in"
   createdAtTimestamp: BigInt!
+
+  "The number of the block the InactiveBid was created in"
   createdAtBlockNumber: BigInt!
 }
 
 type InactiveAsk @entity {
+  "<tokenId>-<transactionHash>-<logIndex>"
   id: ID!
+
+  "The Media associated with the InactiveAsk"
   media: Media!
+
+  "The why this Ask is Inactive"
   type: MarketEventType!
-  amount: BigInt!
+
+  "The Currency of the InactiveAsk"
   currency: Currency!
+
+  "The amount of Currency of the InactiveAsk"
+  amount: BigInt!
+
+  "The owner of the InactiveAsk"
   owner: User!
 
+  "The timestamp of the block the InactiveAsk was created in"
   createdAtTimestamp: BigInt!
+
+  "The number of the block the InactiveAsk was created in"
   createdAtBlockNumber: BigInt!
 }
 
 type Currency @entity {
-  # address
+  "The address of the Currency"
   id: ID!
 
-  # name
+  "The name of the Currency"
   name: String!
 
-  # symbol
+  "The symbol of the Currency"
   symbol: String!
 
-  # decimals
+  "The decimals of the Currency"
   decimals: Int
 
-  # total liquidity across bids of all media
+  "Total Bid Liquidity of the Currency on all Zora Media"
   liquidity: BigInt!
 
+  "The active Bids denominated in the Currency"
   activeBids: [Bid!] @derivedFrom(field: "currency")
+
+  "The active Asks denominated in the Currency"
   activeAsks: [Ask!] @derivedFrom(field: "currency")
+
+  "The InactiveBids denominated in the Currency"
   inactiveBids: [InactiveBid!] @derivedFrom(field: "currency")
+
+  "The InactiveAsks denominated in the Currency"
   inactiveAsks: [InactiveAsk!] @derivedFrom(field: "currency")
 }
 
 type Transfer @entity {
-    id: ID!
+  "<tokenId>-<transactionHash>-<logIndex>"
+  id: ID!
 
-    media: Media!
-    from: User!
-    to: User!
+  "The Media associated with the Transfer"
+  media: Media!
 
-    createdAtTimestamp: BigInt!
-    createdAtBlockNumber: BigInt!
+  "The User transferring the Media"
+  from: User!
+
+  "The User receiving the Media"
+  to: User!
+
+  "The timestamp of the block the Transfer was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Transfer was created in"
+  createdAtBlockNumber: BigInt!
 }
 
-enum UpdateType {
+"The Types of URI Updates"
+enum URIUpdateType {
   Content
   Metadata
 }
 
 type URIUpdate @entity {
-    id: ID!
-    type: UpdateType!
-    from: String!
-    to: String!
-    media: Media!
-    owner: User!
-    updater: User!
-    createdAtTimestamp: BigInt!
-    createdAtBlockNumber: BigInt!
+  "<tokenId>-<transactionHash>-<logIndex>"
+  id: ID!
+
+  "The Type of URIUpdate"
+  type: URIUpdateType!
+
+  "The previous uri"
+  from: String!
+
+  "The new uri"
+  to: String!
+
+  "The Media associated with the URIUpdate"
+  media: Media!
+
+  "The owner of the Media"
+  owner: User!
+
+  "The updater of the Media's URI"
+  updater: User!
+
+  "The timestamp of the block the URIUpdate was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the URIUpdate was created in"
+  createdAtBlockNumber: BigInt!
 }
 
 

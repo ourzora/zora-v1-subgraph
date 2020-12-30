@@ -25,7 +25,7 @@ export function handleTokenURIUpdated(event: TokenURIUpdated): void {
     }
 
     let updater = findOrCreateUser(event.params.owner.toHexString());
-    let uriUpdateId = event.params._tokenId.toString().concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
+    let uriUpdateId = tokenId.concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
 
     createURIUpdate(
         uriUpdateId,
@@ -56,7 +56,7 @@ export function handleTokenMetadataURIUpdated(event: TokenMetadataURIUpdated): v
     }
 
     let updater = findOrCreateUser(event.params.owner.toHexString());
-    let uriUpdateId = event.params._tokenId.toString().concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
+    let uriUpdateId = tokenId.concat("-").concat(event.transaction.hash.toHexString()).concat("-").concat(event.transactionLogIndex.toString());
 
     createURIUpdate(
         uriUpdateId,
