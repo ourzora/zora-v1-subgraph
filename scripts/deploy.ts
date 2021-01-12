@@ -1,8 +1,8 @@
 import fs from 'fs-extra';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Wallet } from '@ethersproject/wallet';
-import { MediaFactory } from '@zoralabs/media/dist/typechain/MediaFactory';
-import { MarketFactory } from '@zoralabs/media/dist/typechain/MarketFactory';
+import { MediaFactory } from '@zoralabs/core/dist/typechain/MediaFactory';
+import { MarketFactory } from '@zoralabs/core/dist/typechain/MarketFactory';
 
 async function start() {
   const args = require('minimist')(process.argv.slice(2));
