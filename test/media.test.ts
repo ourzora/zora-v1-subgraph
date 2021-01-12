@@ -1,12 +1,12 @@
 import { request, gql } from 'graphql-request';
 import {JsonRpcProvider} from '@ethersproject/providers';
-import {generatedWallets} from '@zoralabs/media/dist/utils/generatedWallets';
-import {Blockchain} from '@zoralabs/media/dist/utils/Blockchain';
-import {MarketFactory} from '@zoralabs/media/dist/typechain/MarketFactory';
-import {MediaFactory} from '@zoralabs/media/dist/typechain/MediaFactory';
+import {generatedWallets} from '@zoralabs/core/dist/utils/generatedWallets';
+import {Blockchain} from '@zoralabs/core/dist/utils/Blockchain';
+import {MarketFactory} from '@zoralabs/core/dist/typechain/MarketFactory';
+import {MediaFactory} from '@zoralabs/core/dist/typechain/MediaFactory';
 import { BigNumber, BigNumberish, Bytes } from 'ethers';
 import { ethers, Wallet } from 'ethers';
-import Decimal from '@zoralabs/media/dist/utils/Decimal';
+import Decimal from '@zoralabs/core/dist/utils/Decimal';
 import system from 'system-commands';
 import axiosRetry, {isNetworkError} from "axios-retry";
 import axios from 'axios';
@@ -36,7 +36,7 @@ import {
     uriUpdatesByUpdaterIdQuery
 } from "./queries";
 import {exponentialDelay, delay, randomHashBytes, toNumWei} from "./utils";
-import {BaseErc20Factory} from "@zoralabs/media/dist/typechain";
+import {BaseErc20Factory} from "@zoralabs/core/dist/typechain";
 import {approveCurrency, mintCurrency} from "../utils/currency";
 import dotenv from 'dotenv';
 import {SolidityBid, SolidityAsk} from "../utils/types";

@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { generatedWallets } from '@zoralabs/media/dist/utils/generatedWallets';
+import { generatedWallets } from '@zoralabs/core/dist/utils/generatedWallets';
 import { approveCurrency, deployCurrency, mintCurrency } from '../utils/currency';
 import {BigNumber, BigNumberish} from 'ethers';
 import {Wallet} from "@ethersproject/wallet";
@@ -9,9 +9,9 @@ import crypto from 'crypto';
 import axios from 'axios';
 import fleekStorage from '@fleekhq/fleek-storage-js'
 import {mint, removeAsk, setAsk, setBid, totalSupply, transfer} from '../utils/media';
-import {MediaFactory} from "@zoralabs/media/dist/typechain";
+import {MediaFactory} from "@zoralabs/core/dist/typechain";
 import {MediaData} from "../utils/types";
-import Decimal from "@zoralabs/media/dist/utils/Decimal";
+import Decimal from "@zoralabs/core/dist/utils/Decimal";
 import {getRandomInt} from "../utils/utils";
 import {delay} from "../test/utils";
 

@@ -1,7 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { BigNumber, Bytes, ethers } from 'ethers';
 import { sha256 } from 'ethers/lib/utils';
-import {generatedWallets} from '@zoralabs/media/dist/utils/generatedWallets';
+import {generatedWallets} from '@zoralabs/core/dist/utils/generatedWallets';
 import {
   mint,
   updateTokenURI,
@@ -17,11 +17,11 @@ import {
   totalSupply
 } from "../utils/media";
 import {promises as fs} from "fs";
-import Decimal from "@zoralabs/media/dist/utils/Decimal";
+import Decimal from "@zoralabs/core/dist/utils/Decimal";
 import crypto from 'crypto';
 import ipfsClient from 'ipfs-http-client';
 import fleekStorage from "@fleekhq/fleek-storage-js";
-import {MediaFactory} from "@zoralabs/media/dist/typechain";
+import {MediaFactory} from "@zoralabs/core/dist/typechain";
 import type = Mocha.utils.type;
 
 

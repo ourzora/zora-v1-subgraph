@@ -41,7 +41,7 @@ Configure `.env.local`. Copy the fields from the `.env.example`.
 
 Hint: 
 - Copy / Paste `http://0.0.0.0:8545` as RPC_ENDPOINT
-- Copy / Paste the first Private Key from `@zoralabs/media/dist/utils/generatedWallets` as PK.
+- Copy / Paste the first Private Key from `@zoralabs/core/dist/utils/generatedWallets` as PK.
 - Set `PATH_TO_GRAPH` as the path to the dir of the `graph-node` repository you just cloned.
 - Set `FLEEK_API_KEY` to a key ethan gives you
 - Set `FLEEK_API_SECRET` to a secret ethan gives you

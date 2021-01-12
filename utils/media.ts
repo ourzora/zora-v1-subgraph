@@ -1,6 +1,6 @@
 import {Wallet} from "@ethersproject/wallet";
-import {MediaFactory} from "@zoralabs/media/dist/typechain/MediaFactory";
-import Decimal from "@zoralabs/media/dist/utils/Decimal";
+import {MediaFactory} from "@zoralabs/core/dist/typechain/MediaFactory";
+import Decimal from "@zoralabs/core/dist/utils/Decimal";
 import {BigNumber, Bytes} from "ethers";
 import {SolidityBid, SolidityAsk, MediaData} from "../utils/types";
 
