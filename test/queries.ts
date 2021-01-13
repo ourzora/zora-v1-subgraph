@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request'
 
 export function mediaByIdQuery(id: string): string {
   return gql`
@@ -35,7 +35,7 @@ export function mediaByIdQuery(id: string): string {
             }
         }
     }
-    `;
+    `
 }
 
 export function userByIdQuery(id: string): string {
@@ -54,7 +54,7 @@ export function userByIdQuery(id: string): string {
               }
             }
         }
-    `;
+    `
 }
 
 export function askByIdQuery(id: string): string {
@@ -77,7 +77,7 @@ export function askByIdQuery(id: string): string {
             }
         }
     
-    `;
+    `
 }
 
 export function inactiveAsksByMediaIdQuery(mediaId: string): string {
@@ -100,7 +100,7 @@ export function inactiveAsksByMediaIdQuery(mediaId: string): string {
                 createdAtBlockNumber
             }
         }
-    `;
+    `
 }
 
 export function inactiveBidsByMediaIdQuery(mediaId: string): string {
@@ -127,7 +127,7 @@ export function inactiveBidsByMediaIdQuery(mediaId: string): string {
                 createdAtBlockNumber
             }
         }
-    `;
+    `
 }
 
 export function bidByIdQuery(id: string): string {
@@ -153,7 +153,7 @@ export function bidByIdQuery(id: string): string {
                 createdAtBlockNumber
             }
         }
-    `;
+    `
 }
 
 export function inactiveBidByIdQuery(id: string): string {
@@ -180,7 +180,7 @@ export function inactiveBidByIdQuery(id: string): string {
                 createdAtBlockNumber
             }
         }
-    `;
+    `
 }
 
 export function currencyByIdQuery(id: string): string {
@@ -194,7 +194,7 @@ export function currencyByIdQuery(id: string): string {
                 liquidity
             }    
         }
-    `;
+    `
 }
 
 export function transfersByMediaIdQuery(mediaId: string): string {
@@ -213,7 +213,7 @@ export function transfersByMediaIdQuery(mediaId: string): string {
                 }
             }
         }
-    `;
+    `
 }
 
 export function transfersByFromIdQuery(fromId: string): string {
@@ -232,7 +232,7 @@ export function transfersByFromIdQuery(fromId: string): string {
                 }
             }
         }
-    `;
+    `
 }
 
 export function transfersByToIdQuery(toId: string): string {
@@ -251,7 +251,7 @@ export function transfersByToIdQuery(toId: string): string {
                 }
             }
         }
-    `;
+    `
 }
 
 export function uriUpdatesByMediaIdQuery(mediaId: string): string {
@@ -273,7 +273,7 @@ export function uriUpdatesByMediaIdQuery(mediaId: string): string {
                 }
             }
         }
-    `;
+    `
 }
 
 export function uriUpdatesByUpdaterIdQuery(updaterId: string): string {
@@ -295,7 +295,7 @@ export function uriUpdatesByUpdaterIdQuery(updaterId: string): string {
                 }
             }
         }
-    `;
+    `
 }
 
 export function bidsForMedia(mediaId: string): string {
@@ -317,7 +317,7 @@ export function bidsForMedia(mediaId: string): string {
            }
           }
         }
-    `;
+    `
 }
 
 export function bidsForBidder(bidderId: string): string {
@@ -342,5 +342,5 @@ export function bidsForBidder(bidderId: string): string {
            }
           }
         }
-    `;
+    `
 }
