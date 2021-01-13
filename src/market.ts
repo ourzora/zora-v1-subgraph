@@ -210,13 +210,14 @@ export function handleBidFinalized(event: BidFinalized): void {
     let currency = findOrCreateCurrency(onChainBid.currency.toHexString());
 
 
-    // BidFinalized is always the event after transfer
+    // BidFinalized is always **two** events after transfer
+    // https://github.com/ourzora/core/blob/master/contracts/Market.sol#L349
     // Find the transfer by id and set the from address as the prevOwner of the media
     let transferId = event.params.tokenId.toString()
                             .concat("-")
                             .concat(event.transaction.hash.toHexString())
                             .concat("-")
-                            .concat((event.transactionLogIndex.minus(BigInt.fromI32(1))).toString());
+                            .concat((event.transactionLogIndex.minus(BigInt.fromI32(2))).toString());
     let transfer = Transfer.load(transferId);
     if (transfer == null) {
         log.error("Transfer is null for transfer id: {}", [transferId]);
