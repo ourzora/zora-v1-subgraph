@@ -14,12 +14,15 @@
     owner {
       id
     }
+    ownerBidShare
     creator {
       id
     }
+    creatorBidShare
     prevOwner {
       id
     }
+    prevOwnerBidShare
     approved {
       id
     }
@@ -28,16 +31,118 @@
     }
     currentAsk {
       id
-    }
-    inactiveBids {
-      id
-    }
-    inactiveAsks {
-      id
-    }
+    } 
+    createdAtTimestamp
+    createdAtBlockNumber
   }
 }
 ```
+
+`Media by Creator`
+```gql
+{
+  media(where: { creator: "" }) {
+    id
+    metadataURI
+    contentURI
+    contentHash
+    metadataHash
+    owner {
+      id
+    }
+    ownerBidShare
+    creator {
+      id
+    }
+    creatorBidShare
+    prevOwner {
+      id
+    }
+    prevOwnerBidShare
+    approved {
+      id
+    }
+    currentBids {
+      id
+    }
+    currentAsk {
+      id
+    } 
+    createdAtTimestamp
+    createdAtBlockNumber
+  }
+}
+
+`Media by Owner`
+```gql
+{
+  media(where: { owner: "" }) {
+    id
+    metadataURI
+    contentURI
+    contentHash
+    metadataHash
+    owner {
+      id
+    }
+    ownerBidShare
+    creator {
+      id
+    }
+    creatorBidShare
+    prevOwner {
+      id
+    }
+    prevOwnerBidShare
+    approved {
+      id
+    }
+    currentBids {
+      id
+    }
+    currentAsk {
+      id
+    } 
+    createdAtTimestamp
+    createdAtBlockNumber
+  }
+}
+
+`Medias by Previous Owner`
+```gql
+{
+  media(where: { prevOwner: "" }) {
+    id
+    metadataURI
+    contentURI
+    contentHash
+    metadataHash
+    owner {
+      id
+    }
+    ownerBidShare
+    creator {
+      id
+    }
+    creatorBidShare
+    prevOwner {
+      id
+    }
+    prevOwnerBidShare
+    approved {
+      id
+    }
+    currentBids {
+      id
+    }
+    currentAsk {
+      id
+    } 
+    createdAtTimestamp
+    createdAtBlockNumber
+  }
+}
+
 #### Bids
 
 `Bid by Id`
@@ -502,3 +607,22 @@
 }
 ```
 
+#### User
+
+`User by Id`
+```gql
+{
+  user(id: "") {
+    id
+    creations {
+      id
+    }
+    collection{
+      id
+    }
+    authorizedUsers {
+      id
+    }
+  }
+}
+```
