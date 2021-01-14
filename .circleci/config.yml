@@ -80,3 +80,6 @@ workflows:
       - deploy_rinkeby:
           requires:
             - build
+          filters:
+            branches:
+              only: master

@@ -1,7 +1,7 @@
-import {gql} from "graphql-request";
+import { gql } from "graphql-request";
 
 export function mediaByIdQuery(id: string): string {
-    return gql`
+  return gql`
     {
         media(id: "${id}") {
             id
@@ -35,11 +35,11 @@ export function mediaByIdQuery(id: string): string {
             }
         }
     }
-    `
+    `;
 }
 
 export function userByIdQuery(id: string): string {
-    return gql`
+  return gql`
         {
             user(id: "${id}") {
               id
@@ -58,7 +58,7 @@ export function userByIdQuery(id: string): string {
 }
 
 export function askByIdQuery(id: string): string {
-    return gql`
+  return gql`
         {
             ask(id: "${id}") {
                 id
@@ -81,7 +81,7 @@ export function askByIdQuery(id: string): string {
 }
 
 export function inactiveAsksByMediaIdQuery(mediaId: string): string {
-    return gql`
+  return gql`
         {
             inactiveAsks(where: { media: "${mediaId}"}) {
                 id
@@ -104,7 +104,7 @@ export function inactiveAsksByMediaIdQuery(mediaId: string): string {
 }
 
 export function inactiveBidsByMediaIdQuery(mediaId: string): string {
-    return gql`
+  return gql`
         {
             inactiveBids(where: { media: "${mediaId}"}) {
                 id
@@ -131,7 +131,7 @@ export function inactiveBidsByMediaIdQuery(mediaId: string): string {
 }
 
 export function bidByIdQuery(id: string): string {
-    return gql`
+  return gql`
         {
             bid(id: "${id}") {
                 id
@@ -157,7 +157,7 @@ export function bidByIdQuery(id: string): string {
 }
 
 export function inactiveBidByIdQuery(id: string): string {
-    return gql`
+  return gql`
         {
             inactiveBid(id: "${id}") {
                 id
@@ -184,7 +184,7 @@ export function inactiveBidByIdQuery(id: string): string {
 }
 
 export function currencyByIdQuery(id: string): string {
-    return gql`
+  return gql`
         {
             currency(id: "${id}") {
                 id
@@ -194,11 +194,11 @@ export function currencyByIdQuery(id: string): string {
                 liquidity
             }    
         }
-    `
+    `;
 }
 
 export function transfersByMediaIdQuery(mediaId: string): string {
-    return gql`
+  return gql`
         {
             transfers(where: { media: "${mediaId}"}){
                 id
@@ -213,11 +213,11 @@ export function transfersByMediaIdQuery(mediaId: string): string {
                 }
             }
         }
-    `
+    `;
 }
 
 export function transfersByFromIdQuery(fromId: string): string {
-    return gql`
+  return gql`
         {
             transfers(where: { from: "${fromId}"}){
                 id
@@ -232,11 +232,11 @@ export function transfersByFromIdQuery(fromId: string): string {
                 }
             }
         }
-    `
+    `;
 }
 
 export function transfersByToIdQuery(toId: string): string {
-    return gql`
+  return gql`
         {
             transfers(where: { to: "${toId}"}){
                 id
@@ -251,11 +251,11 @@ export function transfersByToIdQuery(toId: string): string {
                 }
             }
         }
-    `
+    `;
 }
 
 export function uriUpdatesByMediaIdQuery(mediaId: string): string {
-    return gql`
+  return gql`
         {
             uriupdates(where: { media: "${mediaId}"}){
                 id 
@@ -273,11 +273,11 @@ export function uriUpdatesByMediaIdQuery(mediaId: string): string {
                 }
             }
         }
-    `
+    `;
 }
 
 export function uriUpdatesByUpdaterIdQuery(updaterId: string): string {
-    return gql`
+  return gql`
         {
             uriupdates(where: { updater: "${updaterId}" }){
                 id 
@@ -295,5 +295,52 @@ export function uriUpdatesByUpdaterIdQuery(updaterId: string): string {
                 }
             }
         }
-    `
+    `;
+}
+
+export function bidsForMedia(mediaId: string): string {
+  return gql`
+        {
+          bids(where: {media: "${mediaId}"}){
+            id
+            currency {
+              id
+            }
+            amount
+            sellOnShare
+            bidder {
+              id
+            }
+            
+           recipient {
+             id
+           }
+          }
+        }
+    `;
+}
+
+export function bidsForBidder(bidderId: string): string {
+  return gql`
+        {
+          bids(where: {bidder: "${bidderId}"}){
+            id
+            currency {
+              id
+            }
+            media {
+              id
+            }
+            amount
+            sellOnShare
+            bidder {
+              id
+            }
+            
+           recipient {
+             id
+           }
+          }
+        }
+    `;
 }
