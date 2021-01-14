@@ -1,7 +1,7 @@
 {
-  "marketAddress": "ba38164eb0D982fb6F68a4D678B11A1878fD0E2c",
-  "marketStartBlock": 7815341,
-  "mediaAddress": "09d21E6B617904b8Bf078D83B30feF68b53E7557",
-  "mediaStartBlock": 7815342,
+  "marketAddress": "85e946e1Bd35EC91044Dc83A5DdAB2B6A262ffA6",
+  "marketStartBlock": 7888368,
+  "mediaAddress": "7C2668BD0D3c050703CEcC956C11Bd520c26f7d4",
+  "mediaStartBlock": 7888369,
   "network": "rinkeby"
 }
