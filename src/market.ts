@@ -21,6 +21,10 @@ import {
 const REMOVED = 'Removed'
 const FINALIZED = 'Finalized'
 
+/**
+ * Handler called when a `BidShareUpdated` Event is emitted on the Zora Market Contract
+ * @param event
+ */
 export function handleBidShareUpdated(event: BidShareUpdated): void {
   let tokenId = event.params.tokenId.toString()
   let bidShares = event.params.bidShares
@@ -46,6 +50,10 @@ export function handleBidShareUpdated(event: BidShareUpdated): void {
   ])
 }
 
+/**
+ * Handler called when the `AskCreated` Event is emitted on the Zora Market Contract
+ * @param event
+ */
 export function handleAskCreated(event: AskCreated): void {
   let tokenId = event.params.tokenId.toString()
   let onchainAsk = event.params.ask
@@ -78,6 +86,10 @@ export function handleAskCreated(event: AskCreated): void {
   ])
 }
 
+/**
+ * Handler called when the `AskRemoved` Event is emitted on the Zora Market Contract
+ * @param event
+ */
 export function handleAskRemoved(event: AskRemoved): void {
   let tokenId = event.params.tokenId.toString()
   let onChainAsk = event.params.ask
@@ -132,6 +144,10 @@ export function handleAskRemoved(event: AskRemoved): void {
   ])
 }
 
+/**
+ * Handler called `BidCreated` Event is emitted on the Zora Market Contract
+ * @param event
+ */
 export function handleBidCreated(event: BidCreated): void {
   let tokenId = event.params.tokenId.toString()
   let media = Media.load(tokenId)
@@ -175,6 +191,10 @@ export function handleBidCreated(event: BidCreated): void {
   ])
 }
 
+/**
+ * Handler called when the `BidRemoved` Event is emitted on the Zora Market Contract
+ * @param event
+ */
 export function handleBidRemoved(event: BidRemoved): void {
   let tokenId = event.params.tokenId.toString()
   let media = Media.load(tokenId)
@@ -231,6 +251,10 @@ export function handleBidRemoved(event: BidRemoved): void {
   ])
 }
 
+/**
+ * Handler called when the `BidFinalized` Event is emitted on the Zora Market Contract
+ * @param event
+ */
 export function handleBidFinalized(event: BidFinalized): void {
   let tokenId = event.params.tokenId.toString()
   let media = Media.load(tokenId)

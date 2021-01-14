@@ -20,6 +20,10 @@ import {
 const CONTENT = 'Content'
 const METADATA = 'Metadata'
 
+/**
+ * Handler called when the `TokenURIUpdated` Event is called on the Zora Media Contract
+ * @param event
+ */
 export function handleTokenURIUpdated(event: TokenURIUpdated): void {
   let tokenId = event.params._tokenId.toString()
 
@@ -55,6 +59,10 @@ export function handleTokenURIUpdated(event: TokenURIUpdated): void {
   log.info(`Completed handler for TokenURIUpdated Event for tokenId: {}`, [tokenId])
 }
 
+/**
+ * Handler called when the `TokenMetadataURIUpdated` Event is called on the Zora Media Contract
+ * @param event
+ */
 export function handleTokenMetadataURIUpdated(event: TokenMetadataURIUpdated): void {
   let tokenId = event.params._tokenId.toString()
 
@@ -94,6 +102,10 @@ export function handleTokenMetadataURIUpdated(event: TokenMetadataURIUpdated): v
   ])
 }
 
+/**
+ * Handler called when the `Transfer` Event is called on the Zora Media Contract
+ * @param event
+ */
 export function handleTransfer(event: Transfer): void {
   let fromAddr = event.params.from.toHexString()
   let toAddr = event.params.to.toHexString()
@@ -150,6 +162,10 @@ export function handleTransfer(event: Transfer): void {
   ])
 }
 
+/**
+ * Handler called when the `Approval` Event is called on the Zora Media Contract
+ * @param event
+ */
 export function handleApproval(event: Approval): void {
   let ownerAddr = event.params.owner.toHexString()
   let approvedAddr = event.params.approved.toHexString()
@@ -180,6 +196,10 @@ export function handleApproval(event: Approval): void {
   )
 }
 
+/**
+ * Handler called when the `ApprovalForAll` Event is called on the Zora Media Contract
+ * @param event
+ */
 export function handleApprovalForAll(event: ApprovalForAll): void {
   let ownerAddr = event.params.owner.toHexString()
   let operatorAddr = event.params.operator.toHexString()
@@ -210,6 +230,10 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
   )
 }
 
+/**
+ * Handler called when the `Mint` Event is called on the Zora Media Contract
+ * @param event
+ */
 function handleMint(event: Transfer): void {
   let creator = findOrCreateUser(event.params.to.toHexString())
   let zeroUser = findOrCreateUser(zeroAddress)

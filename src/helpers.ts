@@ -18,6 +18,9 @@ import { ERC20SymbolBytes } from '../types/Market/ERC20SymbolBytes'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
 
+/**
+ *  helper class to model BidShares
+ */
 export class BidShares {
   creator: BigInt
   owner: BigInt
@@ -30,6 +33,10 @@ export class BidShares {
   }
 }
 
+/**
+ * Find or Create a User entity with `id` and return it
+ * @param id
+ */
 export function findOrCreateUser(id: string): User {
   let user = User.load(id)
 
@@ -41,6 +48,10 @@ export function findOrCreateUser(id: string): User {
   return user as User
 }
 
+/**
+ * Find or Create a Currency entity with `id` and return it
+ * @param id
+ */
 export function findOrCreateCurrency(id: string): Currency {
   let currency = Currency.load(id)
 
@@ -51,6 +62,11 @@ export function findOrCreateCurrency(id: string): Currency {
   return currency as Currency
 }
 
+/**
+ * Create a Currency Entity in storage.
+ * Populate fields by fetching data from the blockchain.
+ * @param id
+ */
 export function createCurrency(id: string): Currency {
   let currency = new Currency(id)
   currency.liquidity = BigInt.fromI32(0)
@@ -67,6 +83,11 @@ export function createCurrency(id: string): Currency {
   return currency
 }
 
+/**
+ * Fetch the BidShares for a piece of Media by Reading the Zora Market Contract
+ * @param tokenId
+ * @param mediaAddress
+ */
 export function fetchMediaBidShares(tokenId: BigInt, mediaAddress: Address): BidShares {
   let media = MediaContract.bind(mediaAddress)
   let marketAddress = media.marketContract()
@@ -83,6 +104,10 @@ export function fetchMediaBidShares(tokenId: BigInt, mediaAddress: Address): Bid
   )
 }
 
+/**
+ * Fetch the `decimals` from the specified ERC20 contract on the blockchain
+ * @param currencyAddress
+ */
 export function fetchCurrencyDecimals(currencyAddress: Address): i32 {
   let contract = ERC20.bind(currencyAddress)
   // try types uint8 for decimals
@@ -94,6 +119,10 @@ export function fetchCurrencyDecimals(currencyAddress: Address): i32 {
   return decimalValue as i32
 }
 
+/**
+ * Fetch the `symbol` from the specified ERC20 contract on the Blockchain
+ * @param currencyAddress
+ */
 export function fetchCurrencySymbol(currencyAddress: Address): string {
   let contract = ERC20.bind(currencyAddress)
   let contractSymbolBytes = ERC20SymbolBytes.bind(currencyAddress)
@@ -116,6 +145,10 @@ export function fetchCurrencySymbol(currencyAddress: Address): string {
   return symbolValue
 }
 
+/**
+ * Fetch the `name` of the specified ERC20 contract on the blockchain
+ * @param currencyAddress
+ */
 export function fetchCurrencyName(currencyAddress: Address): string {
   let contract = ERC20.bind(currencyAddress)
   let contractNameBytes = ERC20NameBytes.bind(currencyAddress)
@@ -137,10 +170,22 @@ export function fetchCurrencyName(currencyAddress: Address): string {
   return nameValue
 }
 
-export function isNullEthValue(value: string): boolean {
-  return value == '0x0000000000000000000000000000000000000000000000000000000000000001'
-}
-
+/**
+ * Create New Media Entity
+ * @param id
+ * @param owner
+ * @param creator
+ * @param prevOwner
+ * @param contentURI
+ * @param contentHash
+ * @param metadataURI
+ * @param metadataHash
+ * @param creatorBidShare
+ * @param ownerBidShare
+ * @param prevOwnerBidShare
+ * @param createdAtTimestamp
+ * @param createdAtBlockNumber
+ */
 export function createMedia(
   id: string,
   owner: User,
@@ -174,6 +219,15 @@ export function createMedia(
   return media
 }
 
+/**
+ * Create New Ask Entity
+ * @param id
+ * @param amount
+ * @param currency
+ * @param media
+ * @param createdAtTimestamp
+ * @param createdAtBlockNumber
+ */
 export function createAsk(
   id: string,
   amount: BigInt,
@@ -194,6 +248,17 @@ export function createAsk(
   return ask
 }
 
+/**
+ * Create New InactiveAsk Entity
+ * @param id
+ * @param media
+ * @param type
+ * @param amount
+ * @param currency
+ * @param owner
+ * @param createdAtTimestamp
+ * @param createdAtBlockNumber
+ */
 export function createInactiveAsk(
   id: string,
   media: Media,
@@ -218,6 +283,19 @@ export function createInactiveAsk(
   return inactiveAsk
 }
 
+/**
+ * Create New InactiveBid Entity
+ * @param id
+ * @param type
+ * @param media
+ * @param amount
+ * @param currency
+ * @param sellOnShare
+ * @param bidder
+ * @param recipient
+ * @param createdAtTimestamp
+ * @param createdAtBlockNumber
+ */
 export function createInactiveBid(
   id: string,
   type: string,
@@ -244,6 +322,18 @@ export function createInactiveBid(
   return inactiveBid
 }
 
+/**
+ * Create New Bid Entity
+ * @param id
+ * @param amount
+ * @param currency
+ * @param sellOnShare
+ * @param bidder
+ * @param recipient
+ * @param media
+ * @param createdAtTimestamp
+ * @param createdAtBlockNumber
+ */
 export function createBid(
   id: string,
   amount: BigInt,
@@ -269,6 +359,15 @@ export function createBid(
   return bid
 }
 
+/**
+ * Create New Transfer Entity
+ * @param id
+ * @param media
+ * @param from
+ * @param to
+ * @param createdAtTimestamp
+ * @param createdAtBlockNumber
+ */
 export function createTransfer(
   id: string,
   media: Media,
@@ -288,6 +387,18 @@ export function createTransfer(
   return transfer
 }
 
+/**
+ * Create New URIUpdate Entity
+ * @param id
+ * @param media
+ * @param type
+ * @param from
+ * @param to
+ * @param updater
+ * @param owner
+ * @param createdAtTimestamp
+ * @param createdAtBlockNumber
+ */
 export function createURIUpdate(
   id: string,
   media: Media,
@@ -311,4 +422,8 @@ export function createURIUpdate(
 
   uriUpdate.save()
   return uriUpdate
+}
+
+function isNullEthValue(value: string): boolean {
+  return value == '0x0000000000000000000000000000000000000000000000000000000000000001'
 }
