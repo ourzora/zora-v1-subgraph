@@ -120,3 +120,14 @@ export async function removeBid(
   const tx = await media.removeBid(tokenId)
   console.log(tx)
 }
+
+export async function acceptBid(
+  mediaAddress: string,
+  wallet: Wallet,
+  tokenId: BigNumber,
+  bid: SolidityBid
+) {
+  const media = MediaFactory.connect(mediaAddress, wallet)
+  const tx = await media.acceptBid(tokenId, bid)
+  console.log(tx)
+}
