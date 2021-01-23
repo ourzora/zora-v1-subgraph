@@ -72,6 +72,7 @@
     createdAtBlockNumber
   }
 }
+```
 
 `Media by Owner`
 ```gql
@@ -107,6 +108,7 @@
     createdAtBlockNumber
   }
 }
+```
 
 `Medias by Previous Owner`
 ```gql
@@ -142,6 +144,7 @@
     createdAtBlockNumber
   }
 }
+```
 
 #### Bids
 
