@@ -1,6 +1,22 @@
 # Zora V1 Subgraph
 
-A subgraph implementation for V1 of the Zora Protocol
+The [Zora Subgraph](https://github.com/ourzora/zora-v1-subgraph), is a public subgraph implementation of the Graph Protocol for the Zora Protocol. It syncs with the blockchain and indexes pertinent data about Zora cryptomedia. It also provides an easy to use GraphQL interface for developers to imply query data about the Zora Protocol.
+
+The Graph offers a hosted service for public interaction with the Zora Subgraph, but you can also run your own graph-node with a Zora Subgraph by following the Graph's [documentation](https://thegraph.com/docs/network#indexing) and joining their Indexer discord.
+
+Networks:
+- [Rinkeby Production](https://thegraph.com/explorer/subgraph/ourzora/zora-v1)
+- [Mainnet Production](https://thegraph.com/explorer/subgraph/ourzora/zora-v1-rinkeby)
+
+Documentation:
+- [Entities](docs/entities.md)
+- [Querying](docs/querying.md)
+
+References:
+- [Github](https://github.com/ourzora/zora-v1-subgraph)
+- [The Graph](https://thegraph.com/explorer/subgraph/ourzora/zora-v1)
+- [The Graph Querying Docs](https://thegraph.com/docs/query-the-graph)
+- [GraphQL](https://graphql.org/)
 
 ## Local Setup
 
