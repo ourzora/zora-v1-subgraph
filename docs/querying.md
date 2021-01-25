@@ -1,6 +1,12 @@
-### Example Queries
+# Querying for the Zora Subgraph
 
-#### Media 
+To quickly query the Zora Subgraph you can navigate to The Graph's online [sandbox](https://thegraph.com/explorer/subgraph/ourzora/zora-v1) and execute arbitrary graphql queries.
+
+To programmatically query the Zora Subgraph you can send queries to `https://api.thegraph.com/subgraphs/name/ourzora/zora-v1`
+
+## Example Queries
+
+#### Media
 
 `Media by Id`
 ```gql
@@ -31,7 +37,7 @@
     }
     currentAsk {
       id
-    } 
+    }
     createdAtTimestamp
     createdAtBlockNumber
   }
@@ -67,7 +73,7 @@
     }
     currentAsk {
       id
-    } 
+    }
     createdAtTimestamp
     createdAtBlockNumber
   }
@@ -75,6 +81,7 @@
 ```
 
 `Media by Owner`
+
 ```gql
 {
   media(where: { owner: "" }) {
@@ -103,7 +110,7 @@
     }
     currentAsk {
       id
-    } 
+    }
     createdAtTimestamp
     createdAtBlockNumber
   }
@@ -111,6 +118,7 @@
 ```
 
 `Medias by Previous Owner`
+
 ```gql
 {
   media(where: { prevOwner: "" }) {
@@ -139,7 +147,7 @@
     }
     currentAsk {
       id
-    } 
+    }
     createdAtTimestamp
     createdAtBlockNumber
   }
@@ -328,7 +336,7 @@
       id
     }
     recipient {
-      id 
+      id
     }
     createdAtTimestamp
     createdAtBlockNumber
@@ -354,7 +362,7 @@
       id
     }
     recipient {
-      id 
+      id
     }
     createdAtTimestamp
     createdAtBlockNumber
@@ -363,7 +371,7 @@
 ```
 
 `InactiveBids by Bidder`
-```gql 
+```gql
 {
   inactiveBids(where: { bidder: "" }) {
     id
@@ -380,7 +388,7 @@
       id
     }
     recipient {
-      id 
+      id
     }
     createdAtTimestamp
     createdAtBlockNumber
@@ -462,7 +470,7 @@
 ```gql
 {
   uriupdate(id: "" ){
-    id 
+    id
     type
     media {
         id
@@ -483,7 +491,7 @@
 ```gql
 {
   uriupdates(where: { updater: "" }){
-    id 
+    id
     type
     media {
         id
@@ -504,7 +512,7 @@
 ```gql
 {
   uriupdates(where: { media: "" }){
-    id 
+    id
     type
     media {
         id
@@ -606,7 +614,7 @@
     symbol
     decimals
     liquidity
-  }    
+  }
 }
 ```
 

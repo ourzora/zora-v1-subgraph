@@ -4,7 +4,6 @@ import { approveCurrency, deployCurrency, mintCurrency } from '../utils/currency
 import { BigNumber } from 'ethers'
 import { Wallet } from '@ethersproject/wallet'
 import { promises as fs } from 'fs'
-import sha256 from 'crypto-js/sha256'
 import crypto from 'crypto'
 import axios from 'axios'
 import fleekStorage from '@fleekhq/fleek-storage-js'
