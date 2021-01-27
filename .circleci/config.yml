@@ -70,10 +70,7 @@ orbs:
 workflows:
   build_and_deploy:
     jobs:
-      - prepare:
-          pre-steps:
-            - run:
-                command: echo "registry=https://registry.npmjs.org/" > ~/.npmrc && echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+      - prepare
       - build:
           requires:
             - prepare
