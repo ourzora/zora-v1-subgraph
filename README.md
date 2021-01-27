@@ -5,8 +5,8 @@ The [Zora Subgraph](https://github.com/ourzora/zora-v1-subgraph), is a public su
 The Graph offers a hosted service for public interaction with the Zora Subgraph, but you can also run your own graph-node with a Zora Subgraph by following the Graph's [documentation](https://thegraph.com/docs/network#indexing) and joining their Indexer discord.
 
 Networks:
-- [Rinkeby Production](https://thegraph.com/explorer/subgraph/ourzora/zora-v1)
-- [Mainnet Production](https://thegraph.com/explorer/subgraph/ourzora/zora-v1-rinkeby)
+- [Rinkeby](https://thegraph.com/explorer/subgraph/ourzora/zora-v1)
+- [Mainnet](https://thegraph.com/explorer/subgraph/ourzora/zora-v1-rinkeby)
 
 Documentation:
 - [Entities](docs/entities.md)
