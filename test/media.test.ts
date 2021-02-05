@@ -697,7 +697,9 @@ describe('Media', async () => {
 
       let onChainAsk = defaultAsk(currencyAddress)
 
-      await setAsk(creatorWallet, 0, onChainAsk)
+      const tx = await setAsk(creatorWallet, 0, onChainAsk)
+      const txReceipt = await provider.getTransactionReceipt(tx.hash)
+      const block = await provider.getBlock(txReceipt.blockHash)
 
       let askId = '0'.concat('-').concat(creatorWallet.address.toLowerCase())
 
@@ -708,8 +710,8 @@ describe('Media', async () => {
       expect(ask.owner.id).toBe(creatorWallet.address.toLowerCase())
       expect(ask.currency.id).toBe(onChainAsk.currency.toLowerCase())
       expect(ask.amount).toBe(toNumWei(onChainAsk.amount).toString())
-      expect(ask.createdAtTimestamp).not.toBeNull()
-      expect(ask.createdAtBlockNumber).not.toBeNull()
+      expect(ask.createdAtTimestamp).toBe(block.timestamp.toString())
+      expect(ask.createdAtBlockNumber).toBe(block.number.toString())
 
       // it creates a currency
       let currencyResponse: CurrencyQueryResponse = await request(
@@ -723,6 +725,36 @@ describe('Media', async () => {
       expect(currency.name).toBe(currencyName)
       expect(currency.decimals).toBe(currencyDecimals)
       expect(currency.symbol).toBe(currencySymbol)
+
+      // create a duplicate ask
+      const dupTx = await setAsk(creatorWallet, 0, onChainAsk)
+      const dupTxReceipt = await provider.getTransactionReceipt(dupTx.hash)
+      const dupBlock = await provider.getBlock(dupTxReceipt.blockHash)
+
+      askResponse = await request(gqlURL, askByIdQuery(askId))
+      ask = askResponse.ask
+      expect(ask.id).toBe(askId)
+      expect(ask.owner.id).toBe(creatorWallet.address.toLowerCase())
+      expect(ask.currency.id).toBe(onChainAsk.currency.toLowerCase())
+      expect(ask.amount).toBe(toNumWei(onChainAsk.amount).toString())
+      expect(ask.createdAtTimestamp).toBe(dupBlock.timestamp.toString())
+      expect(ask.createdAtBlockNumber).toBe(dupBlock.number.toString())
+
+      let inactiveAsksResponse: InactiveAsksQueryResponse = await request(
+        gqlURL,
+        inactiveAsksByMediaIdQuery('0')
+      )
+      let inactiveAsks = inactiveAsksResponse.inactiveAsks
+
+      expect(inactiveAsks.length).toBe(1)
+      expect(inactiveAsks[0].media.id).toBe('0')
+      expect(inactiveAsks[0].amount).toBe(toNumWei(onChainAsk.amount).toString())
+      expect(inactiveAsks[0].currency.id).toBe(onChainAsk.currency.toLowerCase())
+      expect(inactiveAsks[0].owner.id).toBe(creatorWallet.address.toLowerCase())
+      expect(inactiveAsks[0].createdAtTimestamp).toBe(block.timestamp.toString())
+      expect(inactiveAsks[0].createdAtBlockNumber).toBe(block.number.toString())
+      expect(inactiveAsks[0].inactivatedAtTimestamp).toBe(dupBlock.timestamp.toString())
+      expect(inactiveAsks[0].inactivatedAtBlockNumber).toBe(dupBlock.number.toString())
     })
   })
 
