@@ -98,6 +98,8 @@ export function inactiveAsksByMediaIdQuery(mediaId: string): string {
                 }
                 createdAtTimestamp
                 createdAtBlockNumber
+                inactivatedAtTimestamp
+                inactivatedAtBlockNumber
             }
         }
     `
@@ -125,6 +127,8 @@ export function inactiveBidsByMediaIdQuery(mediaId: string): string {
                 }
                 createdAtTimestamp
                 createdAtBlockNumber
+                inactivatedAtTimestamp
+                inactivatedAtBlockNumber
             }
         }
     `
@@ -178,6 +182,8 @@ export function inactiveBidByIdQuery(id: string): string {
                 }
                 createdAtTimestamp
                 createdAtBlockNumber
+                inactivatedAtTimestamp
+                inactivatedAtBlockNumber
             }
         }
     `

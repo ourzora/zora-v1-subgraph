@@ -267,7 +267,9 @@ export function createInactiveAsk(
   currency: Currency,
   owner: string,
   createdAtTimestamp: BigInt,
-  createdAtBlockNumber: BigInt
+  createdAtBlockNumber: BigInt,
+  inactivatedAtTimestamp: BigInt,
+  inactivatedAtBlockNumber: BigInt
 ): InactiveAsk {
   let inactiveAsk = new InactiveAsk(id)
 
@@ -278,6 +280,8 @@ export function createInactiveAsk(
   inactiveAsk.owner = owner
   inactiveAsk.createdAtTimestamp = createdAtTimestamp
   inactiveAsk.createdAtBlockNumber = createdAtBlockNumber
+  inactiveAsk.inactivatedAtTimestamp = inactivatedAtTimestamp
+  inactiveAsk.inactivatedAtBlockNumber = inactivatedAtBlockNumber
 
   inactiveAsk.save()
   return inactiveAsk
@@ -306,7 +310,9 @@ export function createInactiveBid(
   bidder: User,
   recipient: User,
   createdAtTimestamp: BigInt,
-  createdAtBlockNumber: BigInt
+  createdAtBlockNumber: BigInt,
+  inactivatedAtTimestamp: BigInt,
+  inactivatedAtBlockNumber: BigInt
 ): InactiveBid {
   let inactiveBid = new InactiveBid(id)
   inactiveBid.type = type
@@ -317,6 +323,8 @@ export function createInactiveBid(
   inactiveBid.recipient = recipient.id
   inactiveBid.createdAtTimestamp = createdAtTimestamp
   inactiveBid.createdAtBlockNumber = createdAtBlockNumber
+  inactiveBid.inactivatedAtTimestamp = inactivatedAtTimestamp
+  inactiveBid.inactivatedAtBlockNumber = inactivatedAtBlockNumber
 
   inactiveBid.save()
   return inactiveBid

@@ -91,6 +91,8 @@ export interface InactiveAsk {
   owner: User
   createdAtTimestamp: BigInt
   createdAtBlockNumber: BigInt
+  inactivatedAtTimestamp: BigInt
+  inactivatedAtBlockNumber: BigInt
 }
 
 export interface InactiveAskQueryResponse {
@@ -112,6 +114,8 @@ export interface InactiveBid {
   recipient: User
   createdAtTimestamp: BigInt
   createdAtBlockNumber: BigInt
+  inactivatedAtTimestamp: BigInt
+  inactivatedAtBlockNumber: BigInt
 }
 
 export interface InactiveBidQueryResponse {

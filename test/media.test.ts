@@ -4,7 +4,14 @@ import { generatedWallets } from '@zoralabs/core/dist/utils/generatedWallets'
 import { Blockchain } from '@zoralabs/core/dist/utils/Blockchain'
 import { MarketFactory } from '@zoralabs/core/dist/typechain/MarketFactory'
 import { MediaFactory } from '@zoralabs/core/dist/typechain/MediaFactory'
-import { BigNumber, BigNumberish, Bytes, ethers, Wallet } from 'ethers'
+import {
+  BigNumber,
+  BigNumberish,
+  Bytes,
+  ContractTransaction,
+  ethers,
+  Wallet,
+} from 'ethers'
 import Decimal from '@zoralabs/core/dist/utils/Decimal'
 import system from 'system-commands'
 import axiosRetry, { isNetworkError } from 'axios-retry'
@@ -100,34 +107,57 @@ describe('Media', async () => {
     await delay(5000)
   }
 
-  async function setAsk(wallet: Wallet, tokenId: BigNumberish, ask: SolidityAsk) {
+  async function setAsk(
+    wallet: Wallet,
+    tokenId: BigNumberish,
+    ask: SolidityAsk
+  ): Promise<ContractTransaction> {
     const media = await MediaFactory.connect(mediaAddress, wallet)
-    await media.setAsk(tokenId, ask)
+    const tx = await media.setAsk(tokenId, ask)
     await delay(5000)
+    return tx
   }
 
-  async function removeAsk(wallet: Wallet, tokenId: BigNumberish) {
+  async function removeAsk(
+    wallet: Wallet,
+    tokenId: BigNumberish
+  ): Promise<ContractTransaction> {
     const media = await MediaFactory.connect(mediaAddress, wallet)
-    await media.removeAsk(tokenId)
+    const tx = await media.removeAsk(tokenId)
     await delay(5000)
+    return tx
   }
 
-  async function setBid(wallet: Wallet, tokenId: BigNumberish, bid: SolidityBid) {
+  async function setBid(
+    wallet: Wallet,
+    tokenId: BigNumberish,
+    bid: SolidityBid
+  ): Promise<ContractTransaction> {
     const media = await MediaFactory.connect(mediaAddress, wallet)
-    await media.setBid(tokenId, bid)
+    const tx = await media.setBid(tokenId, bid)
     await delay(5000)
+    return tx
   }
 
-  async function removeBid(wallet: Wallet, tokenId: BigNumberish) {
+  async function removeBid(
+    wallet: Wallet,
+    tokenId: BigNumberish
+  ): Promise<ContractTransaction> {
     const media = await MediaFactory.connect(mediaAddress, wallet)
-    await media.removeBid(tokenId)
+    const tx = await media.removeBid(tokenId)
     await delay(5000)
+    return tx
   }
 
-  async function acceptBid(wallet: Wallet, tokenId: BigNumberish, bid: SolidityBid) {
+  async function acceptBid(
+    wallet: Wallet,
+    tokenId: BigNumberish,
+    bid: SolidityBid
+  ): Promise<ContractTransaction> {
     const media = await MediaFactory.connect(mediaAddress, wallet)
-    await media.acceptBid(tokenId, bid)
+    const tx = await media.acceptBid(tokenId, bid)
     await delay(5000)
+    return tx
   }
 
   async function deploy(wallet: Wallet) {
@@ -707,14 +737,18 @@ describe('Media', async () => {
       let onChainAsk = defaultAsk(currencyAddress)
 
       await mint(creatorWallet, contentHash, metadataHash)
-      await setAsk(creatorWallet, 0, onChainAsk)
+      const setAskTx = await setAsk(creatorWallet, 0, onChainAsk)
+      const setAskTxReceipt = await provider.getTransactionReceipt(setAskTx.hash)
+      const setAskBlock = await provider.getBlock(setAskTxReceipt.blockHash)
 
       let askId = '0'.concat('-').concat(creatorWallet.address.toLowerCase())
 
       let askResponse: AskQueryResponse = await request(gqlURL, askByIdQuery(askId))
       expect(askResponse.ask).not.toBeNull()
 
-      await removeAsk(creatorWallet, 0)
+      const removeAskTx = await removeAsk(creatorWallet, 0)
+      const removeAskTxReceipt = await provider.getTransactionReceipt(removeAskTx.hash)
+      const removeAskBlock = await provider.getBlock(removeAskTxReceipt.blockHash)
 
       askResponse = await request(gqlURL, askByIdQuery(askId))
       expect(askResponse.ask).toBeNull()
@@ -730,6 +764,14 @@ describe('Media', async () => {
       expect(inactiveAsks[0].amount).toBe(toNumWei(onChainAsk.amount).toString())
       expect(inactiveAsks[0].currency.id).toBe(onChainAsk.currency.toLowerCase())
       expect(inactiveAsks[0].owner.id).toBe(creatorWallet.address.toLowerCase())
+      expect(inactiveAsks[0].createdAtTimestamp).toBe(setAskBlock.timestamp.toString())
+      expect(inactiveAsks[0].createdAtBlockNumber).toBe(setAskBlock.number.toString())
+      expect(inactiveAsks[0].inactivatedAtTimestamp).toBe(
+        removeAskBlock.timestamp.toString()
+      )
+      expect(inactiveAsks[0].inactivatedAtBlockNumber).toBe(
+        removeAskBlock.number.toString()
+      )
 
       //setAsk with new user -> transfer removes ask and creates inActiveAsk
       await setAsk(creatorWallet, 0, onChainAsk)
@@ -765,7 +807,10 @@ describe('Media', async () => {
 
       await mint(creatorWallet, contentHash, metadataHash)
       await setAsk(creatorWallet, 0, onChainAsk)
-      await setBid(otherWallet, 0, onChainBid)
+
+      const setBidTx = await setBid(otherWallet, 0, onChainBid)
+      const setBidTxReceipt = await provider.getTransactionReceipt(setBidTx.hash)
+      const setBidBlock = await provider.getBlock(setBidTxReceipt.blockHash)
 
       let currencyResponse: CurrencyQueryResponse = await request(
         gqlURL,
@@ -800,7 +845,10 @@ describe('Media', async () => {
         9,
         9
       )
-      await setBid(otherWallet, 0, higherOnChainBid)
+
+      const replaceBidTx = await setBid(otherWallet, 0, higherOnChainBid)
+      const replaceBidTxReceipt = await provider.getTransactionReceipt(replaceBidTx.hash)
+      const replaceBidBlock = await provider.getBlock(replaceBidTxReceipt.blockHash)
 
       bidResponse = await request(gqlURL, bidByIdQuery(bidId))
       bid = bidResponse.bid
@@ -830,6 +878,14 @@ describe('Media', async () => {
       )
       expect(inactiveBids[0].bidder.id).toBe(onChainBid.bidder.toLowerCase())
       expect(inactiveBids[0].recipient.id).toBe(onChainBid.recipient.toLowerCase())
+      expect(inactiveBids[0].createdAtTimestamp).toBe(setBidBlock.timestamp.toString())
+      expect(inactiveBids[0].createdAtBlockNumber).toBe(setBidBlock.number.toString())
+      expect(inactiveBids[0].inactivatedAtTimestamp).toBe(
+        replaceBidBlock.timestamp.toString()
+      )
+      expect(inactiveBids[0].inactivatedAtBlockNumber).toBe(
+        replaceBidBlock.number.toString()
+      )
 
       //when the bid is accepted it properly updates
       //the media, the bid, and creates an inactive bid
@@ -927,7 +983,9 @@ describe('Media', async () => {
       )
 
       await mint(creatorWallet, contentHash, metadataHash)
-      await setBid(otherWallet, 0, onChainBid)
+      const setTx = await setBid(otherWallet, 0, onChainBid)
+      const setTxReceipt = await provider.getTransactionReceipt(setTx.hash)
+      const setBlock = await provider.getBlock(setTxReceipt.blockHash)
 
       let currencyResponse: CurrencyQueryResponse = await request(
         gqlURL,
@@ -941,7 +999,10 @@ describe('Media', async () => {
       let bidResponse: BidQueryResponse = await request(gqlURL, bidByIdQuery(bidId))
       expect(bidResponse.bid).not.toBeNull()
 
-      await removeBid(otherWallet, 0)
+      const removeTx = await removeBid(otherWallet, 0)
+      const removeTxReceipt = await provider.getTransactionReceipt(removeTx.hash)
+      const removeBlock = await provider.getBlock(removeTxReceipt.blockHash)
+
       bidResponse = await request(gqlURL, bidByIdQuery(bidId))
       expect(bidResponse.bid).toBeNull()
 
@@ -974,6 +1035,16 @@ describe('Media', async () => {
       )
       expect(inactiveBids[0].bidder.id).toBe(onChainBid.bidder.toLowerCase())
       expect(inactiveBids[0].recipient.id).toBe(onChainBid.recipient.toLowerCase())
+      expect(inactiveBids[0].createdAtBlockNumber).toBe(
+        setTxReceipt.blockNumber.toString()
+      )
+      expect(inactiveBids[0].createdAtTimestamp).toBe(setBlock.timestamp.toString())
+      expect(inactiveBids[0].inactivatedAtTimestamp).toBe(
+        removeBlock.timestamp.toString()
+      )
+      expect(inactiveBids[0].inactivatedAtBlockNumber).toBe(
+        removeTxReceipt.blockNumber.toString()
+      )
     })
   })
 
@@ -992,7 +1063,10 @@ describe('Media', async () => {
       )
 
       await mint(creatorWallet, contentHash, metadataHash)
-      await setBid(otherWallet, 0, onChainBid)
+      const setBidTx = await setBid(otherWallet, 0, onChainBid)
+      const setBidTxReceipt = await provider.getTransactionReceipt(setBidTx.hash)
+      const setBidBlock = await provider.getBlock(setBidTxReceipt.blockHash)
+
       let bidId = '0'.concat('-').concat(otherWallet.address.toLowerCase())
       let bidResponse: BidQueryResponse = await request(gqlURL, bidByIdQuery(bidId))
       expect(bidResponse.bid).not.toBeNull()
@@ -1005,7 +1079,9 @@ describe('Media', async () => {
       expect(currency.id).toBe(currencyAddress.toLowerCase())
       expect(currency.liquidity).toBe(toNumWei(onChainBid.amount).toString())
 
-      await acceptBid(creatorWallet, 0, onChainBid)
+      const acceptBidTx = await acceptBid(creatorWallet, 0, onChainBid)
+      const acceptBidTxReceipt = await provider.getTransactionReceipt(acceptBidTx.hash)
+      const acceptBidBlock = await provider.getBlock(acceptBidTxReceipt.blockHash)
 
       bidResponse = await request(gqlURL, bidByIdQuery(bidId))
       expect(bidResponse.bid).toBeNull()
@@ -1025,6 +1101,16 @@ describe('Media', async () => {
       )
       expect(inactiveBids[0].bidder.id).toBe(onChainBid.bidder.toLowerCase())
       expect(inactiveBids[0].recipient.id).toBe(onChainBid.recipient.toLowerCase())
+      expect(inactiveBids[0].createdAtBlockNumber).toBe(
+        setBidTxReceipt.blockNumber.toString()
+      )
+      expect(inactiveBids[0].createdAtTimestamp).toBe(setBidBlock.timestamp.toString())
+      expect(inactiveBids[0].inactivatedAtTimestamp).toBe(
+        acceptBidBlock.timestamp.toString()
+      )
+      expect(inactiveBids[0].inactivatedAtBlockNumber).toBe(
+        acceptBidTxReceipt.blockNumber.toString()
+      )
 
       let mediaResponse: MediaQueryResponse = await request(gqlURL, mediaByIdQuery('0'))
       let media = mediaResponse.media

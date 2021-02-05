@@ -160,11 +160,17 @@ type InactiveBid @entity {
   "The recipient of the InactiveBid"
   recipient: User!
 
-  "The timestamp of the block the InactiveBid was created in"
+  "The timestamp of the block the original Bid was created in"
   createdAtTimestamp: BigInt!
 
-  "The number of the block the InactiveBid was created in"
+  "The number of the block the original Bid was created in"
   createdAtBlockNumber: BigInt!
+
+ "The timestamp of the block the original Bid was inactivated in"
+  inactivatedAtTimestamp: BigInt!
+
+  "The number of the block the original Bid was inactivated in"
+  inactivatedAtBlockNumber: BigInt!
 }
 
 type InactiveAsk @entity {
@@ -186,11 +192,17 @@ type InactiveAsk @entity {
   "The owner of the InactiveAsk"
   owner: User!
 
-  "The timestamp of the block the InactiveAsk was created in"
+  "The timestamp of the block the original Ask was created in"
   createdAtTimestamp: BigInt!
 
-  "The number of the block the InactiveAsk was created in"
+  "The number of the block the original Ask was created in"
   createdAtBlockNumber: BigInt!
+
+  "The timestamp of the block the original Ask was inactivated in"
+  inactivatedAtTimestamp: BigInt!
+
+  "The number of the block the original Ask was inactivated in"
+  inactivatedAtBlockNumber: BigInt!
 }
 
 type Currency @entity {
