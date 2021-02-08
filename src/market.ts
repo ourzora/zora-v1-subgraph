@@ -70,15 +70,45 @@ export function handleAskCreated(event: AskCreated): void {
 
   let currency = findOrCreateCurrency(onchainAsk.currency.toHexString())
   let askId = media.id.concat('-').concat(media.owner)
+  let ask = Ask.load(askId)
 
-  createAsk(
-    askId,
-    onchainAsk.amount,
-    currency,
-    media as Media,
-    event.block.timestamp,
-    event.block.number
-  )
+  if (ask == null) {
+    createAsk(
+      askId,
+      onchainAsk.amount,
+      currency,
+      media as Media,
+      event.block.timestamp,
+      event.block.number
+    )
+  } else {
+    let inactiveAskId = tokenId
+      .concat('-')
+      .concat(event.transaction.hash.toHexString())
+      .concat('-')
+      .concat(event.transactionLogIndex.toString())
+
+    // create an inactive ask
+    createInactiveAsk(
+      inactiveAskId,
+      media as Media,
+      REMOVED,
+      ask.amount,
+      currency,
+      ask.owner,
+      ask.createdAtTimestamp,
+      ask.createdAtBlockNumber,
+      event.block.timestamp,
+      event.block.number
+    )
+
+    // update the fields on the original ask object
+    ask.amount = onchainAsk.amount
+    ask.currency = currency.id
+    ask.createdAtTimestamp = event.block.timestamp
+    ask.createdAtBlockNumber = event.block.number
+    ask.save()
+  }
 
   log.info(`Completed handler for AskCreated Event for tokenId: {}, ask: {}`, [
     tokenId,
