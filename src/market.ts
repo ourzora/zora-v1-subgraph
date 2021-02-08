@@ -124,6 +124,7 @@ export function handleAskRemoved(event: AskRemoved): void {
       .concat(event.transaction.hash.toHexString())
       .concat('-')
       .concat(event.transactionLogIndex.toString())
+
     createInactiveAsk(
       inactiveAskId,
       media as Media,
@@ -131,6 +132,8 @@ export function handleAskRemoved(event: AskRemoved): void {
       ask.amount,
       currency,
       ask.owner,
+      ask.createdAtTimestamp,
+      ask.createdAtBlockNumber,
       event.block.timestamp,
       event.block.number
     )
@@ -235,6 +238,8 @@ export function handleBidRemoved(event: BidRemoved): void {
     onChainBid.sellOnShare.value,
     bidder,
     recipient,
+    bid.createdAtTimestamp,
+    bid.createdAtBlockNumber,
     event.block.timestamp,
     event.block.number
   )
@@ -312,6 +317,8 @@ export function handleBidFinalized(event: BidFinalized): void {
     onChainBid.sellOnShare.value,
     bidder,
     recipient,
+    bid.createdAtTimestamp,
+    bid.createdAtBlockNumber,
     event.block.timestamp,
     event.block.number
   )
