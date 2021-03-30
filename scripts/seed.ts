@@ -33,7 +33,7 @@ async function startSeed() {
     throw new Error('--chainId chain ID is required')
   }
   const path = `${process.cwd()}/.env${
-    args.chainId === 1 ? '.prod' : args.chainId === 4 ? '.dev' : '.local'
+      args.chainId === 1 ? '.prod' : args.chainId === 4 ? '.dev' : '.local'
   }`
   await require('dotenv').config({ path })
 
@@ -60,25 +60,37 @@ async function startSeed() {
 
   if (args.fullMonty) {
     await fullMonty(
-      provider,
-      wallet1,
-      mediaAddress,
-      marketAddress,
-      fleekApiSecret,
-      fleekApiKey
+        provider,
+        wallet1,
+        mediaAddress,
+        marketAddress,
+        fleekApiSecret,
+        fleekApiKey
     )
   } else if (args.mint) {
     await mintMedia(provider, mediaAddress, fleekApiSecret, fleekApiKey)
+  } else if (args.sendEth) {
+    for (const wallet of generatedWallets(provider).filter(
+        w => w.address != wallet1.address
+    )) {
+      const tx = await wallet1.sendTransaction({
+        to: wallet.address,
+        value: BigNumber.from('1100000000000000000'),
+      })
+
+      console.log(tx)
+      await delay(3000)
+    }
   } else if (args.asks) {
     if (!args.currencyAddress) {
       throw new Error('must specify --currencyAddress')
     }
     const currencyAddress = args.currencyAddress
     await setRandomAsks(
-      generatedWallets(provider),
-      mediaAddress,
-      marketAddress,
-      currencyAddress
+        generatedWallets(provider),
+        mediaAddress,
+        marketAddress,
+        currencyAddress
     )
   } else if (args.bids) {
     if (!args.currencyAddress) {
@@ -129,10 +141,10 @@ async function startSeed() {
     console.log('Minting Currency for Each Generated Wallet')
     for (const wallet of generatedWallets(provider)) {
       await mintCurrency(
-        wallet1,
-        currencyAddress,
-        wallet.address,
-        BigNumber.from('100000000000000000000000')
+          wallet1,
+          currencyAddress,
+          wallet.address,
+          BigNumber.from('100000000000000000000000')
       )
       await delay(2000)
     }
@@ -159,21 +171,21 @@ async function startSeed() {
     const toAddr = args.toAddr
 
     await mintCurrency(
-      wallet1,
-      currencyAddress,
-      toAddr,
-      BigNumber.from('100000000000000000000000')
+        wallet1,
+        currencyAddress,
+        toAddr,
+        BigNumber.from('100000000000000000000000')
     )
   }
 }
 
 async function fullMonty(
-  provider,
-  masterWallet,
-  mediaAddress,
-  marketAddress,
-  fleekApiSecret,
-  fleekApiKey
+    provider,
+    masterWallet,
+    mediaAddress,
+    marketAddress,
+    fleekApiSecret,
+    fleekApiKey
 ) {
   // deploy DAI
   let breckAddress = await deployCurrency(masterWallet)
@@ -184,10 +196,10 @@ async function fullMonty(
   console.log('Minting Currency for Each Generated Wallet')
   for (const wallet of generatedWallets(provider)) {
     await mintCurrency(
-      masterWallet,
-      breckAddress,
-      wallet.address,
-      BigNumber.from('100000000000000000000000')
+        masterWallet,
+        breckAddress,
+        wallet.address,
+        BigNumber.from('100000000000000000000000')
     )
     await delay(2000)
   }
@@ -201,20 +213,20 @@ async function fullMonty(
 
   await mintMedia(provider, mediaAddress, fleekApiSecret, fleekApiKey)
   await setRandomAsks(
-    generatedWallets(provider),
-    mediaAddress,
-    marketAddress,
-    breckAddress
+      generatedWallets(provider),
+      mediaAddress,
+      marketAddress,
+      breckAddress
   )
   await setRandomBids(generatedWallets(provider), mediaAddress, breckAddress)
 }
 
 async function setUpNewCurrency(
-  provider: JsonRpcProvider,
-  masterWallet: Wallet,
-  marketAddress: string,
-  name: string,
-  symbol: string
+    provider: JsonRpcProvider,
+    masterWallet: Wallet,
+    marketAddress: string,
+    name: string,
+    symbol: string
 ) {
   let currencyAddress = await deployCurrency(masterWallet, name, symbol)
 
@@ -224,10 +236,10 @@ async function setUpNewCurrency(
   console.log('Minting Currency for Each Generated Wallet')
   for (const wallet of generatedWallets(provider)) {
     await mintCurrency(
-      masterWallet,
-      currencyAddress,
-      wallet.address,
-      BigNumber.from('100000000000000000000000')
+        masterWallet,
+        currencyAddress,
+        wallet.address,
+        BigNumber.from('100000000000000000000000')
     )
     await delay(2000)
   }
@@ -241,10 +253,10 @@ async function setUpNewCurrency(
 }
 
 async function mintMedia(
-  provider: JsonRpcProvider,
-  mediaAddress: string,
-  fleekApiSecret: string,
-  fleekApiKey: string
+    provider: JsonRpcProvider,
+    mediaAddress: string,
+    fleekApiSecret: string,
+    fleekApiKey: string
 ) {
   for (const wallet of generatedWallets(provider)) {
     //const wallets = ['0xe834ec434daba538cd1b9fe1582052b880bd7e63', '0xe36ea790bc9d7ab70c55260c66d52b1eca985f84', '0x6ecbe1db9ef729cbe972c83fb886247691fb6beb', '0x5409ed021d9299bf6814279a6a1411a7e866a631', '0x78dc5d2d739606d31509c31d654056a45185ecb6', '0xa8dda8d7f5310e4a9e24f8eba77e091ac264f872', '0x06cef8e666768cc40cc78cf93d9611019ddcb628', '0x4404ac8bd8f9618d27ad2f1485aa1b2cfd82482d', '0x7457d5e02197480db681d3fdf256c7aca21bdc12']
@@ -306,10 +318,10 @@ async function mintMedia(
         apiKey: fleekApiKey,
         apiSecret: fleekApiSecret,
         key: wallet.address.concat('-').concat(
-          i
-            .toString()
-            .concat('-')
-            .concat('metadata')
+            i
+                .toString()
+                .concat('-')
+                .concat('metadata')
         ),
         data: minified,
       })
@@ -337,9 +349,9 @@ async function mintMedia(
 }
 
 async function removeBids(
-  wallets: Array<Wallet>,
-  mediaAddress: string,
-  marketAddress: string
+    wallets: Array<Wallet>,
+    mediaAddress: string,
+    marketAddress: string
 ) {
   for (const wallet of wallets) {
     const media = MediaFactory.connect(mediaAddress, wallet)
@@ -368,9 +380,9 @@ async function removeBids(
 }
 
 async function acceptRandomBids(
-  wallets: Array<Wallet>,
-  mediaAddress: string,
-  marketAddress: string
+    wallets: Array<Wallet>,
+    mediaAddress: string,
+    marketAddress: string
 ) {
   for (const wallet of wallets) {
     const media = MediaFactory.connect(mediaAddress, wallet)
@@ -400,10 +412,10 @@ async function acceptRandomBids(
 }
 
 async function setRandomAsks(
-  wallets: Array<Wallet>,
-  mediaAddress: string,
-  marketAddress: string,
-  currencyAddress: string
+    wallets: Array<Wallet>,
+    mediaAddress: string,
+    marketAddress: string,
+    currencyAddress: string
 ) {
   // for each wallet
   for (const wallet of wallets) {
@@ -435,33 +447,32 @@ async function setRandomAsks(
 }
 
 async function setRandomBids(
-  wallets: Array<Wallet>,
-  mediaAddress: string,
-  currencyAddress: string
+    wallets: Array<Wallet>,
+    mediaAddress: string,
+    currencyAddress: string
 ) {
   for (const wallet of wallets) {
     console.log(`Bidding for wallet ${wallet.address}`)
     const media = MediaFactory.connect(mediaAddress, wallet)
     const numTokens = await media.balanceOf(wallet.address)
 
-    for (let j = 0; j < 25; j++) {
+    console.log(numTokens.toNumber())
+
+    for (let j = 0; j < 5; j++) {
       // get each token
       let tokenIds = new Set()
-
-      for (let i = 0; i < numTokens.toNumber(); i++) {
-        let tokenId = await media.tokenOfOwnerByIndex(wallet.address, i)
-        tokenIds.add(tokenId)
-      }
-
       // do this like 5 times
 
       // generate a random token to bid on
       const supply = await totalSupply(mediaAddress, wallet)
       console.log(`Total Supply: ${supply}`)
       let randomTokenId = getRandomInt(0, supply.toNumber())
+      let owner = await media.ownerOf(randomTokenId)
 
-      while (tokenIds.has(randomTokenId)) {
+      // ensure owner isn't the bidder
+      while (owner.toString().toLowerCase() === wallet.address.toString().toLowerCase()) {
         randomTokenId = getRandomInt(0, supply.toNumber())
+        owner = await media.ownerOf(randomTokenId)
       }
 
       let bid = {
@@ -501,7 +512,7 @@ async function randomTransfers(wallets: Array<Wallet>, mediaAddress: string) {
     const tokenId = await media.tokenOfOwnerByIndex(wallet.address, rand)
     const randWalletId = getRandomInt(0, 9)
     console.log(
-      `Transferring ${tokenId} from ${wallet.address} to ${wallets[randWalletId].address}.`
+        `Transferring ${tokenId} from ${wallet.address} to ${wallets[randWalletId].address}.`
     )
     await transfer(mediaAddress, wallet, tokenId, wallets[randWalletId].address)
     await delay(3000)
