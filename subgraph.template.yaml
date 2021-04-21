@@ -100,6 +100,8 @@ dataSources:
           handler: handleReserveAuctionCreated
         - event: AuctionApprovalUpdated(indexed uint256,indexed uint256,indexed address,bool)
           handler: handleReserveAuctionApprovalUpdate
+        - event: AuctionReservePriceUpdated(indexed uint256,indexed uint256,indexed address,uint256)
+          handler: handleReserveAuctionReservePriceUpdate
         - event: AuctionBid(indexed uint256,indexed uint256,indexed address,address,uint256,bool,bool)
           handler: handleReserveAuctionBid
         - event: AuctionEnded(indexed uint256,indexed uint256,indexed address,address,address,address,uint256,uint256,address)

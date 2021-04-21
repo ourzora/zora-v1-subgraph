@@ -13,7 +13,7 @@ import {
   AuctionBid,
   AuctionCanceled,
   AuctionCreated,
-  AuctionEnded
+  AuctionEnded, AuctionReservePriceUpdated
 } from '../types/AuctionHouse/AuctionHouse'
 import { Media, ReserveAuction } from '../types/schema'
 import { log } from '@graphprotocol/graph-ts'
@@ -53,6 +53,18 @@ export function handleReserveAuctionApprovalUpdate(event: AuctionApprovalUpdated
 
   auction.approved = event.params.approved
   auction.status = 'Active'
+  auction.save()
+
+  log.info(`Completed handler for AuctionApprovalUpdate on auction {}`, [id])
+}
+
+export function handleReserveAuctionReservePriceUpdate(event: AuctionReservePriceUpdated): void {
+  let id = event.params.auctionId.toString()
+  log.info(`Starting handler for AuctionApprovalUpdate on auction {}`, [id])
+
+  let auction = ReserveAuction.load(id)
+
+  auction.reservePrice = event.params.reservePrice
   auction.save()
 
   log.info(`Completed handler for AuctionApprovalUpdate on auction {}`, [id])

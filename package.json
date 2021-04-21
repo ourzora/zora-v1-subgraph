@@ -42,7 +42,7 @@
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@zoralabs/auction-house": "0.1.4"
+    "@zoralabs/auction-house": "1.1.0"
   },
   "jest": {
     "preset": "ts-jest"
