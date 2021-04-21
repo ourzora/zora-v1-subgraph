@@ -3,6 +3,7 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { MediaFactory } from '@zoralabs/core/dist/typechain/MediaFactory'
 import { MarketFactory } from '@zoralabs/core/dist/typechain/MarketFactory'
+import { AuctionHouse__factory, WETH__factory } from '@zoralabs/auction-house/dist/typechain'
 
 async function start() {
   const args = require('minimist')(process.argv.slice(2))
@@ -29,6 +30,10 @@ async function start() {
   if (config.mediaAddress) {
     throw new Error(
       `media already exists in address book at ${sharedAddressPath}. Please move it first so it is not overwritten`
+    )
+  } if (!config.wethAddress && args.chainId !== 50) {
+    throw new Error(
+      `weth Address missing in address book at ${sharedAddressPath}. Please add it first`
     )
   }
 
@@ -58,6 +63,27 @@ async function start() {
   console.log(`Market configuration tx: ${tx.hash}`)
   await tx.wait()
   console.log(`Market configured.`)
+
+  // Deploy WETH locally if necessary
+  if(args.chainId === 50) {
+    console.log('Deploying WETH...')
+    // @ts-ignore
+    const wethDeploy = await new WETH__factory(wallet).deploy()
+    await wethDeploy.deployed()
+    config.wethAddress = wethDeploy.address
+  }
+
+  console.log('Deploying Auction House')
+  // @ts-ignore
+  const auctionHouseDeployTx = await new AuctionHouse__factory(wallet).deploy(config.mediaAddress, config.wethAddress)
+  console.log(`Deploy TX: ${auctionHouseDeployTx.deployTransaction.hash}`)
+  await auctionHouseDeployTx.deployed()
+  console.log(`Auction house deployed at ${auctionHouseDeployTx.address}`)
+  config.auctionHouseAddress = auctionHouseDeployTx.address.substring(2)
+  const auctionHouseReceipt = await provider.getTransactionReceipt(
+    auctionHouseDeployTx.deployTransaction.hash
+  )
+  config.auctionHouseStartBlock = auctionHouseReceipt.blockNumber
 
   config.network = args.chainId === 4 ? 'rinkeby' : 'mainnet'
 

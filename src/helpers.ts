@@ -1,11 +1,15 @@
 import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts/index'
+import { store, log } from '@graphprotocol/graph-ts'
 import {
   Ask,
   Bid,
   Currency,
   InactiveAsk,
   InactiveBid,
+  InactiveReserveAuctionBid,
   Media,
+  ReserveAuction,
+  ReserveAuctionBid,
   Transfer,
   URIUpdate,
   User,
@@ -70,6 +74,14 @@ export function findOrCreateCurrency(id: string): Currency {
 export function createCurrency(id: string): Currency {
   let currency = new Currency(id)
   currency.liquidity = BigInt.fromI32(0)
+
+  if (id === zeroAddress) {
+    currency.name = 'Ethereum'
+    currency.symbol = 'ETH'
+    currency.decimals = 18
+    currency.save()
+    return currency
+  }
 
   let name = fetchCurrencyName(Address.fromString(id))
   let symbol = fetchCurrencySymbol(Address.fromString(id))
@@ -430,6 +442,115 @@ export function createURIUpdate(
 
   uriUpdate.save()
   return uriUpdate
+}
+
+export function createReserveAuction(
+  id: string,
+  tokenId: BigInt,
+  tokenContract: string,
+  media: Media | null,
+  duration: BigInt,
+  reservePrice: BigInt,
+  curatorFeePercentage: i32,
+  auctionCurrency: Currency,
+  createdAtTimestamp: BigInt,
+  createdAtBlockNumber: BigInt,
+  tokenOwner: User,
+  curator: User
+): ReserveAuction {
+  let reserveAuction = new ReserveAuction(id)
+
+  reserveAuction.tokenId = tokenId
+  reserveAuction.tokenContract = tokenContract
+  reserveAuction.media = media ? media.id : null
+  reserveAuction.approved = false
+  reserveAuction.duration = duration
+  reserveAuction.firstBidTime = BigInt.fromI32(0)
+  reserveAuction.reservePrice = reservePrice
+  reserveAuction.curatorFeePercentage = curatorFeePercentage
+  reserveAuction.tokenOwner = tokenOwner.id
+  reserveAuction.curator = curator.id
+  reserveAuction.auctionCurrency = auctionCurrency.id
+  reserveAuction.status = 'Pending'
+  reserveAuction.createdAtTimestamp = createdAtTimestamp
+  reserveAuction.createdAtBlockNumber = createdAtBlockNumber
+
+  reserveAuction.save()
+
+  return reserveAuction
+}
+
+export function setReserveAuctionFirstBidTime(auction: ReserveAuction, time: BigInt): void {
+  auction.firstBidTime = time
+  auction.expectedEndTimestamp = auction.duration.plus(time)
+  auction.save()
+}
+
+export function handleReserveAuctionExtended(auction: ReserveAuction, blockTime: BigInt): void {
+  // Extend the auction 15 minutes
+  auction.expectedEndTimestamp = blockTime.plus(BigInt.fromI32(15 * 60))
+  auction.save()
+}
+
+export function createReserveAuctionBid(
+  id: string,
+  auction: ReserveAuction,
+  amount: BigInt,
+  createdAtTimestamp: BigInt,
+  createdAtBlockNumber: BigInt,
+  bidder: User
+): ReserveAuctionBid {
+  let bid = new ReserveAuctionBid(id)
+
+  log.warning('Creating active bid with id {}', [id])
+
+  bid.reserveAuction = auction.id
+  bid.amount = amount
+  bid.bidder = bidder.id
+  bid.bidType = 'Active'
+  bid.createdAtTimestamp = createdAtTimestamp
+  bid.createdAtBlockNumber = createdAtBlockNumber
+
+  bid.save()
+
+  auction.currentBid = bid.id
+  auction.save()
+
+  return bid
+}
+
+// Create an inactive bid based off of the current highest bid, and delete the active bid
+export function handleBidReplaced(auction: ReserveAuction, timestamp: BigInt, blockNumber: BigInt, winningBid: boolean = false): void {
+  let activeBid = ReserveAuctionBid.load(auction.currentBid) as ReserveAuctionBid
+  let inactiveBid = new InactiveReserveAuctionBid(activeBid.id)
+
+  log.info('setting reserve auction', [])
+  inactiveBid.reserveAuction = activeBid.reserveAuction
+  log.info('setting amount: {}', [activeBid.amount.toString()])
+  inactiveBid.amount = activeBid.amount
+  log.info('setting bidder', [])
+  inactiveBid.bidder = activeBid.bidder
+  log.info('setting bid type', [])
+  inactiveBid.bidType = winningBid ? 'Final' : 'Refunded'
+  log.info('setting bid IAT', [])
+  inactiveBid.bidInactivatedAtTimestamp = timestamp
+  log.info('setting bid IABN', [])
+  inactiveBid.bidInactivatedAtBlockNumber = blockNumber
+  log.info('setting bid CAT', [])
+  inactiveBid.createdAtTimestamp = activeBid.createdAtTimestamp
+  log.info('setting bid CABN', [])
+  inactiveBid.createdAtBlockNumber = activeBid.createdAtBlockNumber
+
+  inactiveBid.save()
+
+  store.remove('ReserveAuctionBid', activeBid.id)
+}
+
+export function handleFinishedAuction(auction: ReserveAuction, timestamp: BigInt, blockNumber: BigInt, canceledAuction: boolean = false): void {
+  auction.finalizedAtTimestamp = timestamp
+  auction.finalizedAtBlockNumber = blockNumber
+  auction.status = canceledAuction ? 'Canceled' : 'Finished'
+  auction.save()
 }
 
 function isNullEthValue(value: string): boolean {

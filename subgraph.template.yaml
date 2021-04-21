@@ -71,3 +71,39 @@ dataSources:
         - event: BidFinalized(indexed uint256,(uint256,address,address,address,(uint256)))
           handler: handleBidFinalized
       file: ./src/market.ts
+  - kind: ethereum/contract
+    name: AuctionHouse
+    network: {{ network }}
+    source:
+      address: {{auctionHouseAddress}}
+      abi: AuctionHouse
+      startBlock: {{auctionHouseStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - ReserveAuction
+        - ReserveAuctionBid
+        - InactiveReserveAuctionBid
+      abis:
+        - name: AuctionHouse
+          file: ./abis/AuctionHouse.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+      eventHandlers:
+        - event: AuctionCreated(indexed uint256,indexed uint256,indexed address,uint256,uint256,address,address,uint8,address)
+          handler: handleReserveAuctionCreated
+        - event: AuctionApprovalUpdated(indexed uint256,indexed uint256,indexed address,bool)
+          handler: handleReserveAuctionApprovalUpdate
+        - event: AuctionBid(indexed uint256,indexed uint256,indexed address,address,uint256,bool,bool)
+          handler: handleReserveAuctionBid
+        - event: AuctionEnded(indexed uint256,indexed uint256,indexed address,address,address,address,uint256,uint256,address)
+          handler: handleReserveAuctionEnded
+        - event: AuctionCanceled(indexed uint256,indexed uint256,indexed address,address)
+          handler: handleReserveAuctionCanceled
+      file: ./src/auctionHouse.ts

@@ -22,6 +22,7 @@ export async function approveCurrency(
   to: string
 ): Promise<void> {
   const tx = await BaseErc20Factory.connect(tokenAddress, wallet).approve(to, MaxUint256)
+  await tx.wait()
 }
 
 export async function mintCurrency(
@@ -31,5 +32,6 @@ export async function mintCurrency(
   amount: BigNumber
 ): Promise<void> {
   const tx = await BaseErc20Factory.connect(tokenAdress, wallet).mint(to, amount)
+  await tx.wait()
   console.log(tx)
 }

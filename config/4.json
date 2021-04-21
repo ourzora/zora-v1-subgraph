@@ -3,5 +3,8 @@
   "marketStartBlock": 7888368,
   "mediaAddress": "7C2668BD0D3c050703CEcC956C11Bd520c26f7d4",
   "mediaStartBlock": 7888369,
-  "network": "rinkeby"
+  "network": "rinkeby",
+  "wethAddress": "c778417E063141139Fce010982780140Aa0cD5Ab",
+  "auctionHouseAddress": "71a416eD974739238a3D2DdDa63D937cf6154f47",
+  "auctionHouseStartBlock": 8489579
 }
