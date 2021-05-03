@@ -249,16 +249,42 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "auctionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tokenContract",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "reservePrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "AuctionReservePriceUpdated",
+    "type": "event"
+  },
+  {
     "stateMutability": "payable",
     "type": "fallback"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
       {
         "internalType": "uint256",
         "name": "",
@@ -269,8 +295,13 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "auctionId",
+        "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "tokenContract",
+        "type": "address"
       },
       {
         "internalType": "bool",
@@ -329,13 +360,8 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "tokenContract",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "auctionId",
         "type": "uint256"
       }
     ],
@@ -383,20 +409,21 @@
       }
     ],
     "name": "createAuction",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "tokenContract",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "auctionId",
         "type": "uint256"
       },
       {
@@ -413,13 +440,8 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "tokenContract",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "auctionId",
         "type": "uint256"
       }
     ],
@@ -444,13 +466,8 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "tokenContract",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "auctionId",
         "type": "uint256"
       },
       {
@@ -460,6 +477,24 @@
       }
     ],
     "name": "setAuctionApproval",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "auctionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "reservePrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "setAuctionReservePrice",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

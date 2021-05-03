@@ -1575,10 +1575,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@zoralabs/auction-house@0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@zoralabs/auction-house/-/auction-house-0.1.4.tgz#b0de75456bc594a31abcd23b2553c9ec0511bd72"
-  integrity sha512-rx6ArGa7qQQCUszCBcMAEUQo+DQYAwcTe9FFOVzrnHxeponNP/WLHOP66MwQI1t/pKu/y+xfdrIUUkowvPGFwQ==
+"@zoralabs/auction-house@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@zoralabs/auction-house/-/auction-house-1.1.0.tgz#74b1850ee373a649baea221ae266469a4821a5c6"
+  integrity sha512-pFv4ei1+JKJTrVzMwaiZ174GAD+PMhHRTtR5NPAchVJmXfA+tAUJrS6YGTH/fWgj4IDJ4TZo2ADIq/5qHel+aw==
   dependencies:
     "@zoralabs/core" "^1.0.3"
     dotenv "^8.2.0"
