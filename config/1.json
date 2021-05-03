@@ -1,7 +1,10 @@
 {
+  "network": "mainnet",
   "marketAddress": "E5BFAB544ecA83849c53464F85B7164375Bdaac1",
   "marketStartBlock": 11565017,
   "mediaAddress": "abEFBc9fD2F806065b4f3C237d4b59D9A97Bcac7",
   "mediaStartBlock": 11565020,
-  "network": "mainnet"
+  "wethAddress": "C02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  "auctionHouseAddress": "ce9890736CC356aE992D970cdFBd5b068c665916",
+  "auctionHouseStartBlock": 12326499
 }

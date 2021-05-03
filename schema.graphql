@@ -289,5 +289,127 @@ type URIUpdate @entity {
   createdAtBlockNumber: BigInt!
 }
 
+enum ReserveAuctionBidType {
+  Active
+  Refunded
+  Final
+}
 
+type ReserveAuctionBid @entity {
+  "<auctionId>-<txHash>-<logIndex>"
+  id: ID!
 
+  "The Reserve auction associated with the Bid"
+  reserveAuction: ReserveAuction!
+
+  "The amount of the Bid"
+  amount: BigInt!
+
+  "The bidder of the Bid"
+  bidder: User!
+
+  "The type of bid (active, refunded, final)"
+  bidType: ReserveAuctionBidType!
+
+  "The timestamp of the block the Bid was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Bid was created in"
+  createdAtBlockNumber: BigInt!
+}
+
+type InactiveReserveAuctionBid @entity {
+  "<auctionId>-<txHash>-<logIndex>"
+  id: ID!
+
+  "The Reserve auction associated with the Bid"
+  reserveAuction: ReserveAuction!
+
+  "The amount of the Bid"
+  amount: BigInt!
+
+  "The bidder of the Bid"
+  bidder: User!
+
+  "The type of bid (active, refunded, final)"
+  bidType: ReserveAuctionBidType!
+
+  "The timestamp of the block the bid was inactivated at (via outbid, cancellation, winning bid)"
+  bidInactivatedAtTimestamp: BigInt!
+
+  "The number of the block the bid was inactivated at (via outbid, cancellation, winning bid)"
+  bidInactivatedAtBlockNumber: BigInt!
+
+  "The timestamp of the block the Bid was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Bid was created in"
+  createdAtBlockNumber: BigInt!
+}
+enum ReserveAuctionStatus {
+  Pending
+  Active
+  Canceled
+  Finished
+}
+
+type ReserveAuction @entity {
+  "<tokenContract>-<tokenId>"
+  id: ID!
+
+  "The originating token contract for this auction"
+  tokenContract: String!
+
+  "The token ID for this auction"
+  tokenId: BigInt!
+
+  "The media for the auction, if it is a zora NFT"
+  media: Media
+
+  "Whether or not the auction has been approved by the curator"
+  approved: Boolean!
+
+  "The length of time the auction is intended to run for, after the first bid is made"
+  duration: BigInt!
+
+  "The expected end of auction timestamp, which can change if bids were placed within the last 15 minutes, and is not set until the first bid is placed"
+  expectedEndTimestamp: BigInt
+
+  "The time the first bid was placed"
+  firstBidTime: BigInt
+
+  "The minimum price of the first bid"
+  reservePrice: BigInt!
+
+  "The sale percentage to send to the curator"
+  curatorFeePercentage: Int!
+
+  "The address that should receive the funds once the NFT is sold"
+  tokenOwner: User!
+
+  "The address of the auction's curator"
+  curator: User!
+
+  "The address of the ERC-20 currency to run the auction with, or 0x0 for ETH"
+  auctionCurrency: Currency!
+
+  status: ReserveAuctionStatus!
+
+  "The current bid on this auction"
+  currentBid: ReserveAuctionBid
+
+  "The previous bids on this auction"
+  previousBids: [InactiveReserveAuctionBid!]  @derivedFrom(field: "reserveAuction")
+
+  "The timestamp of the block the Transfer was created in"
+  createdAtTimestamp: BigInt!
+
+  "The number of the block the Transfer was created in"
+  createdAtBlockNumber: BigInt!
+
+  "The timestamp at which the auction end function was called"
+  finalizedAtTimestamp: BigInt
+
+  "The block number at which the auction end function was called"
+  finalizedAtBlockNumber: BigInt
+}

@@ -11,12 +11,14 @@ export async function mint(mediaAddress: string, wallet: Wallet, mediaData: Medi
     owner: Decimal.new(90),
     prevOwner: Decimal.new(0),
   })
+  await tx.wait()
 }
 
 export async function burn(mediaAddress: string, wallet: Wallet, tokenId: BigNumber) {
   const media = await MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.burn(tokenId)
   console.log(tx)
+  await tx.wait()
 }
 
 export async function updateTokenURI(
@@ -28,6 +30,7 @@ export async function updateTokenURI(
   const media = await MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.updateTokenURI(tokenId, tokenURI)
   console.log(tx)
+  await tx.wait()
 }
 
 export async function updateTokenMetadataURI(
@@ -39,6 +42,7 @@ export async function updateTokenMetadataURI(
   const media = await MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.updateTokenMetadataURI(tokenId, tokenMetadataURI)
   console.log(tx)
+  await tx.wait()
 }
 
 export async function totalSupply(mediaAddress: string, wallet: Wallet) {
@@ -55,6 +59,7 @@ export async function approve(
   const media = MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.approve(toAddress, tokenId)
   console.log(tx)
+  await tx.wait()
 }
 
 export async function approveForAll(
@@ -66,6 +71,7 @@ export async function approveForAll(
   const media = MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.setApprovalForAll(operator, approved)
   console.log(tx)
+  await tx.wait()
 }
 
 export async function transfer(
@@ -76,6 +82,7 @@ export async function transfer(
 ): Promise<string> {
   const media = MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.transferFrom(wallet.address, to, tokenId)
+  await tx.wait()
   return tx.hash
 }
 
@@ -88,6 +95,7 @@ export async function setAsk(
   const media = await MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.setAsk(tokenId, ask)
   console.log(tx)
+  await tx.wait()
 }
 
 export async function removeAsk(
@@ -98,6 +106,7 @@ export async function removeAsk(
   const media = await MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.removeAsk(tokenId)
   console.log(tx)
+  await tx.wait()
 }
 
 export async function setBid(
@@ -109,6 +118,7 @@ export async function setBid(
   const media = MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.setBid(tokenId, bid)
   console.log(tx)
+  await tx.wait()
 }
 
 export async function removeBid(
@@ -119,6 +129,7 @@ export async function removeBid(
   const media = MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.removeBid(tokenId)
   console.log(tx)
+  await tx.wait()
 }
 
 export async function acceptBid(
@@ -130,4 +141,5 @@ export async function acceptBid(
   const media = MediaFactory.connect(mediaAddress, wallet)
   const tx = await media.acceptBid(tokenId, bid)
   console.log(tx)
+  await tx.wait()
 }

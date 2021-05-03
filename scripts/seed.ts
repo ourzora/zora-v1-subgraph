@@ -20,7 +20,6 @@ import {
 import { MarketFactory, MediaFactory } from '@zoralabs/core/dist/typechain'
 import Decimal from '@zoralabs/core/dist/utils/Decimal'
 import { getRandomInt } from '../utils/utils'
-import { delay } from '../test/utils'
 import { AddressZero } from '@ethersproject/constants'
 import randomWords from 'random-words'
 import { generateMetadata, validateMetadata } from '@zoralabs/zdk'
@@ -35,7 +34,7 @@ async function startSeed() {
   const path = `${process.cwd()}/.env${
     args.chainId === 1 ? '.prod' : args.chainId === 4 ? '.dev' : '.local'
   }`
-  await require('dotenv').config({ path })
+  await require('dotenv').config({path})
 
   const provider = new JsonRpcProvider(process.env.RPC_ENDPOINT)
   const fleekApiKey = process.env.FLEEK_API_KEY
@@ -57,6 +56,7 @@ async function startSeed() {
 
   const mediaAddress = config.mediaAddress
   const marketAddress = config.marketAddress
+  const auctionHouseAddress = config.auctionHouseAddress
 
   if (args.fullMonty) {
     await fullMonty(
@@ -64,6 +64,7 @@ async function startSeed() {
       wallet1,
       mediaAddress,
       marketAddress,
+      auctionHouseAddress,
       fleekApiSecret,
       fleekApiKey
     )
@@ -134,14 +135,12 @@ async function startSeed() {
         wallet.address,
         BigNumber.from('100000000000000000000000')
       )
-      await delay(2000)
     }
 
     // for each address approve the market max uint256
     console.log('Granting Approval to Market Contract for each Generated Wallet')
     for (const wallet of generatedWallets(provider)) {
       await approveCurrency(wallet, currencyAddress, marketAddress)
-      await delay(2000)
     }
   } else if (args.removeBids) {
     await removeBids(generatedWallets(provider), mediaAddress, marketAddress)
@@ -172,6 +171,7 @@ async function fullMonty(
   masterWallet,
   mediaAddress,
   marketAddress,
+  auctionHouseAddress,
   fleekApiSecret,
   fleekApiKey
 ) {
@@ -189,14 +189,12 @@ async function fullMonty(
       wallet.address,
       BigNumber.from('100000000000000000000000')
     )
-    await delay(2000)
   }
 
   // for each address approve the market max uint256
   console.log('Granting Approval to Market Contract for each Generated Wallet')
   for (const wallet of generatedWallets(provider)) {
     await approveCurrency(wallet, breckAddress, marketAddress)
-    await delay(2000)
   }
 
   await mintMedia(provider, mediaAddress, fleekApiSecret, fleekApiKey)
@@ -207,6 +205,13 @@ async function fullMonty(
     breckAddress
   )
   await setRandomBids(generatedWallets(provider), mediaAddress, breckAddress)
+
+  // await setupRandomAuctions(
+  //   generatedWallets(provider),
+  //   mediaAddress,
+  //   marketAddress,
+  //   breckAddress
+  // )
 }
 
 async function setUpNewCurrency(
@@ -229,14 +234,12 @@ async function setUpNewCurrency(
       wallet.address,
       BigNumber.from('100000000000000000000000')
     )
-    await delay(2000)
   }
 
   // for each address approve the market max uint256
   console.log('Granting Approval to Market Contract for each Generated Wallet')
   for (const wallet of generatedWallets(provider)) {
     await approveCurrency(wallet, currencyAddress, marketAddress)
-    await delay(2000)
   }
 }
 
@@ -284,8 +287,8 @@ async function mintMedia(
         data: response.data,
       })
 
-      const randomName = randomWords({ min: 2, max: 5, join: ' ' })
-      const randomDescription = randomWords({ exactly: 10, join: ' ' })
+      const randomName = randomWords({min: 2, max: 5, join: ' '})
+      const randomDescription = randomWords({exactly: 10, join: ' '})
 
       const metadata = {
         version: 'zora-20210101',
@@ -330,7 +333,6 @@ async function mintMedia(
       // mint the thing
       console.log('Minting new media for address: ', wallet.address.toLowerCase())
       await mint(mediaAddress, wallet, mediaData)
-      await delay(3000)
     }
   }
   console.log('Completed Seeding GraphQL with Minted Media')
@@ -360,7 +362,6 @@ async function removeBids(
         if (bid.bidder != AddressZero) {
           console.log(`Removing bid from ${bidder.address} on token id: ${tokenId}`)
           await removeBid(mediaAddress, bidder, tokenId)
-          await delay(3000)
         }
       }
     }
@@ -391,7 +392,6 @@ async function acceptRandomBids(
         if (bid.bidder != AddressZero) {
           console.log(`Accepting bid from ${bidder.address} on token id: ${tokenId}`)
           await acceptBid(mediaAddress, wallet, tokenId, bid)
-          await delay(3000)
           break
         }
       }
@@ -429,7 +429,6 @@ async function setRandomAsks(
       }
       console.log('Setting Ask for Token Id: ', tokenId)
       await setAsk(mediaAddress, wallet, tokenId, ask)
-      await delay(3000)
     }
   }
 }
@@ -467,14 +466,13 @@ async function setRandomBids(
       let bid = {
         currency: currencyAddress,
         amount: Decimal.new(getRandomInt(0, 1000)).value,
-        sellOnShare: { value: Decimal.new(getRandomInt(0, 10)).value },
+        sellOnShare: {value: Decimal.new(getRandomInt(0, 10)).value},
         recipient: wallet.address,
         bidder: wallet.address,
       }
 
       console.log(`Setting bid from ${wallet.address} for token ${randomTokenId}`)
       await setBid(mediaAddress, wallet, BigNumber.from(randomTokenId), bid)
-      await delay(3000)
     }
   }
 }
@@ -487,7 +485,6 @@ async function removeAsks(wallets: Array<Wallet>, mediaAddress: string) {
       let tokenId = await media.tokenOfOwnerByIndex(wallet.address, i)
       console.log('Removing Ask for Token Id: ', tokenId)
       await removeAsk(mediaAddress, wallet, tokenId)
-      await delay(3000)
     }
   }
 }
@@ -504,9 +501,10 @@ async function randomTransfers(wallets: Array<Wallet>, mediaAddress: string) {
       `Transferring ${tokenId} from ${wallet.address} to ${wallets[randWalletId].address}.`
     )
     await transfer(mediaAddress, wallet, tokenId, wallets[randWalletId].address)
-    await delay(3000)
   }
 }
+
+// async function setupRandomAuctions(wallets: Array<Wallet>, mediaAddress: string, auctionHouseAddress: string, currencyAddress: string)
 
 startSeed().catch((e: Error) => {
   console.error(e)
