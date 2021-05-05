@@ -12,7 +12,7 @@ import {
   AuctionApprovalUpdated,
   AuctionBid,
   AuctionCanceled,
-  AuctionCreated,
+  AuctionCreated, AuctionDurationExtended,
   AuctionEnded, AuctionReservePriceUpdated
 } from '../types/AuctionHouse/AuctionHouse'
 import { Media, ReserveAuction } from '../types/schema'
@@ -100,11 +100,23 @@ export function handleReserveAuctionBid(event: AuctionBid): void {
     findOrCreateUser(event.params.sender.toHexString())
   )
 
-  if(event.params.extended) {
-    handleReserveAuctionExtended(auction as ReserveAuction, event.block.timestamp)
+  log.info(`Completed handler for AuctionBid on auction {}`, [auctionId])
+}
+
+export function handleReserveAuctionDurationExtended(event: AuctionDurationExtended): void {
+  let auctionId = event.params.auctionId.toString()
+  log.info(`Starting handler for AuctionDurationExtended on auction {}`, [auctionId])
+
+  let auction = ReserveAuction.load(auctionId)
+
+  if(auction === null) {
+    log.error('Missing Reserve Auction with id {} for bid', [auctionId])
+    return
   }
 
-  log.info(`Completed handler for AuctionBid on auction {}`, [auctionId])
+  handleReserveAuctionExtended(auction as ReserveAuction, event.params.duration);
+
+  log.info(`Completed handler for AuctionDurationExtended on auction {}`, [auctionId])
 }
 
 export function handleReserveAuctionEnded(event: AuctionEnded): void {

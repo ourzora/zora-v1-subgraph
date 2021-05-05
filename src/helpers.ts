@@ -486,9 +486,9 @@ export function setReserveAuctionFirstBidTime(auction: ReserveAuction, time: Big
   auction.save()
 }
 
-export function handleReserveAuctionExtended(auction: ReserveAuction, blockTime: BigInt): void {
-  // Extend the auction 15 minutes
-  auction.expectedEndTimestamp = blockTime.plus(BigInt.fromI32(15 * 60))
+export function handleReserveAuctionExtended(auction: ReserveAuction, duration: BigInt): void {
+  auction.duration = duration
+  auction.expectedEndTimestamp = auction.firstBidTime.plus(duration)
   auction.save()
 }
 
