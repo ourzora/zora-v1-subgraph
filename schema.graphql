@@ -354,7 +354,7 @@ enum ReserveAuctionStatus {
 }
 
 type ReserveAuction @entity {
-  "<tokenContract>-<tokenId>"
+  "ID of the auction from contract, autoincrementing int"
   id: ID!
 
   "The originating token contract for this auction"
@@ -362,6 +362,9 @@ type ReserveAuction @entity {
 
   "The token ID for this auction"
   tokenId: BigInt!
+
+  "<tokenContract>-<tokenId>"
+  token: String!
 
   "The media for the auction, if it is a zora NFT"
   media: Media
