@@ -466,6 +466,7 @@ export function createReserveAuction(
   reserveAuction.approved = false
   reserveAuction.duration = duration
   reserveAuction.firstBidTime = BigInt.fromI32(0)
+  reserveAuction.approvedTimestamp = null
   reserveAuction.reservePrice = reservePrice
   reserveAuction.curatorFeePercentage = curatorFeePercentage
   reserveAuction.tokenOwner = tokenOwner.id
