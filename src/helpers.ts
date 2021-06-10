@@ -462,10 +462,12 @@ export function createReserveAuction(
 
   reserveAuction.tokenId = tokenId
   reserveAuction.tokenContract = tokenContract
+  reserveAuction.token = tokenContract.concat('-').concat(tokenId.toString()) 
   reserveAuction.media = media ? media.id : null
   reserveAuction.approved = false
   reserveAuction.duration = duration
   reserveAuction.firstBidTime = BigInt.fromI32(0)
+  reserveAuction.approvedTimestamp = null
   reserveAuction.reservePrice = reservePrice
   reserveAuction.curatorFeePercentage = curatorFeePercentage
   reserveAuction.tokenOwner = tokenOwner.id

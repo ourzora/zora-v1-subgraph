@@ -61,6 +61,9 @@ type Media @entity {
 
   "The transfers of the Media"
   transfers: [Transfer!] @derivedFrom(field: "media")
+
+  "The ReserveAuctions of the Media"
+  reserveAuctions: [ReserveAuction!] @derivedFrom(field: "media")
 }
 
 type User @entity {
@@ -357,7 +360,7 @@ enum ReserveAuctionStatus {
 }
 
 type ReserveAuction @entity {
-  "<tokenContract>-<tokenId>"
+  "ID of the auction from contract, autoincrementing int"
   id: ID!
 
   "The originating token contract for this auction"
@@ -365,6 +368,9 @@ type ReserveAuction @entity {
 
   "The token ID for this auction"
   tokenId: BigInt!
+
+  "<tokenContract>-<tokenId>"
+  token: String!
 
   "The media for the auction, if it is a zora NFT"
   media: Media
@@ -403,6 +409,12 @@ type ReserveAuction @entity {
 
   "The previous bids on this auction"
   previousBids: [InactiveReserveAuctionBid!]  @derivedFrom(field: "reserveAuction")
+
+  "The time the auction was approved"
+  approvedTimestamp: BigInt
+
+  "The number of the block the auction was Approved"
+  approvedBlockNumber: BigInt
 
   "The timestamp of the block the Transfer was created in"
   createdAtTimestamp: BigInt!
