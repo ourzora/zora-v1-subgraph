@@ -70,8 +70,8 @@ yarn deploy-contracts --chainId 50
 
 ```
 yarn codegen
-yarn build
 yarn prepare:local 
+yarn build
 yarn create-local
 yarn deploy-local
 ```

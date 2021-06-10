@@ -61,6 +61,9 @@ type Media @entity {
 
   "The InactiveBids of the Media"
   inactiveBids: [InactiveBid!] @derivedFrom(field: "media")
+
+  "The ReserveAuctions of the Media"
+  reserveAuctions: [ReserveAuction!] @derivedFrom(field: "media")
 }
 
 type User @entity {
@@ -381,7 +384,7 @@ enum ReserveAuctionStatus {
 }
 
 type ReserveAuction @entity {
-  "<tokenContract>-<tokenId>"
+  "ID of the auction from contract, autoincrementing int"
   id: ID!
 
   "Transaction hash where the reserve auction was created"
@@ -392,6 +395,9 @@ type ReserveAuction @entity {
 
   "The token ID for this auction"
   tokenId: BigInt!
+
+  "<tokenContract>-<tokenId>"
+  token: String!
 
   "The media for the auction, if it is a zora NFT"
   media: Media
