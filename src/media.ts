@@ -43,6 +43,7 @@ export function handleTokenURIUpdated(event: TokenURIUpdated): void {
 
   createURIUpdate(
     uriUpdateId,
+    event.transaction.hash.toString(),
     media as Media,
     CONTENT,
     media.contentURI,
@@ -84,6 +85,7 @@ export function handleTokenMetadataURIUpdated(event: TokenMetadataURIUpdated): v
 
   createURIUpdate(
     uriUpdateId,
+    event.transaction.hash.toString(),
     media as Media,
     METADATA,
     media.metadataURI,
@@ -148,6 +150,7 @@ export function handleTransfer(event: Transfer): void {
 
   createTransfer(
     transferId,
+    event.transaction.hash.toString(),
     media as Media,
     fromUser,
     toUser,
@@ -250,6 +253,7 @@ function handleMint(event: Transfer): void {
 
   let media = createMedia(
     tokenId.toString(),
+    event.transaction.hash.toString(),
     creator,
     creator,
     creator,
@@ -273,6 +277,7 @@ function handleMint(event: Transfer): void {
 
   createTransfer(
     transferId,
+    event.transaction.hash.toString(),
     media,
     zeroUser,
     creator,

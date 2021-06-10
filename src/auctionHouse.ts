@@ -29,6 +29,7 @@ export function handleReserveAuctionCreated(event: AuctionCreated): void {
 
   createReserveAuction(
     event.params.auctionId.toString(),
+    event.transaction.hash.toString(),
     event.params.tokenId,
     event.params.tokenContract.toHexString(),
     media,
@@ -95,6 +96,7 @@ export function handleReserveAuctionBid(event: AuctionBid): void {
 
   createReserveAuctionBid(
     id,
+    event.transaction.hash.toString(),
     auction as ReserveAuction,
     event.params.value,
     event.block.timestamp,

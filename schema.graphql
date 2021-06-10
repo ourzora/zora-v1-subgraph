@@ -2,6 +2,9 @@ type Media @entity {
   "The tokenId on the Zora Media Contract"
   id: ID!
 
+  "The transaction hash the media was created at"
+  transactionHash: String!
+
   "The current owner of the Media"
   owner: User!
 
@@ -84,6 +87,9 @@ type Ask @entity {
   "The Media associated with the Ask"
   media: Media!
 
+  "Transaction hash the ask was created at"
+  transactionHash: String!
+
   "The Currency of the Ask"
   currency: Currency!
 
@@ -103,6 +109,9 @@ type Ask @entity {
 type Bid @entity {
   "<token-id>-<bidderAddress>"
   id: ID!
+
+  "Transaction hash the bid was created at"
+  transactionHash: String!
 
   "The Media associated with the Bid"
   media: Media!
@@ -138,6 +147,9 @@ enum MarketEventType {
 type InactiveBid @entity {
   "<tokenId>-<transactionHash>-<logIndex>"
   id: ID!
+
+  "Transaction hash the bid was created at"
+  transactionHash: String!
 
   "The Media associated with the InactiveBid"
   media: Media!
@@ -176,6 +188,9 @@ type InactiveBid @entity {
 type InactiveAsk @entity {
   "<tokenId>-<transactionHash>-<logIndex>"
   id: ID!
+
+  "Transaction hash the ask was created at"
+  transactionHash: String!
 
   "The Media associated with the InactiveAsk"
   media: Media!
@@ -238,6 +253,9 @@ type Transfer @entity {
   "<tokenId>-<transactionHash>-<logIndex>"
   id: ID!
 
+  "Transaction hash for the transfer"
+  transactionHash: String!
+
   "The Media associated with the Transfer"
   media: Media!
 
@@ -263,6 +281,9 @@ enum URIUpdateType {
 type URIUpdate @entity {
   "<tokenId>-<transactionHash>-<logIndex>"
   id: ID!
+
+  "The transaction has the uri update happened at"
+  transactionHash: String!
 
   "The Type of URIUpdate"
   type: URIUpdateType!
@@ -299,6 +320,9 @@ type ReserveAuctionBid @entity {
   "<auctionId>-<txHash>-<logIndex>"
   id: ID!
 
+  "The transaction hash the reserve auction big was created at"
+  transactionHash: String!
+
   "The Reserve auction associated with the Bid"
   reserveAuction: ReserveAuction!
 
@@ -321,6 +345,9 @@ type ReserveAuctionBid @entity {
 type InactiveReserveAuctionBid @entity {
   "<auctionId>-<txHash>-<logIndex>"
   id: ID!
+
+  "The transaction hash the reserve auction big was created at"
+  transactionHash: String!
 
   "The Reserve auction associated with the Bid"
   reserveAuction: ReserveAuction!
@@ -356,6 +383,9 @@ enum ReserveAuctionStatus {
 type ReserveAuction @entity {
   "<tokenContract>-<tokenId>"
   id: ID!
+
+  "Transaction hash where the reserve auction was created"
+  transactionHash: String!
 
   "The originating token contract for this auction"
   tokenContract: String!
