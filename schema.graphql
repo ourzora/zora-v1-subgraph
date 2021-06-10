@@ -59,6 +59,9 @@ type Media @entity {
   "The InactiveBids of the Media"
   inactiveBids: [InactiveBid!] @derivedFrom(field: "media")
 
+  "The transfers of the Media"
+  transfers: [Transfer!] @derivedFrom(field: "media")
+
   "The ReserveAuctions of the Media"
   reserveAuctions: [ReserveAuction!] @derivedFrom(field: "media")
 }
