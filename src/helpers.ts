@@ -200,6 +200,7 @@ export function fetchCurrencyName(currencyAddress: Address): string {
  */
 export function createMedia(
   id: string,
+  transactionHash: string,
   owner: User,
   creator: User,
   prevOwner: User,
@@ -215,6 +216,7 @@ export function createMedia(
 ): Media {
   let media = new Media(id)
   media.owner = owner.id
+  media.transactionHash = transactionHash
   media.creator = creator.id
   media.prevOwner = prevOwner.id
   media.contentURI = contentURI
@@ -242,6 +244,7 @@ export function createMedia(
  */
 export function createAsk(
   id: string,
+  transactionHash: string,
   amount: BigInt,
   currency: Currency,
   media: Media,
@@ -249,6 +252,7 @@ export function createAsk(
   createdAtBlockNumber: BigInt
 ): Ask {
   let ask = new Ask(id)
+  ask.transactionHash = transactionHash
   ask.amount = amount
   ask.currency = currency.id
   ask.media = media.id
@@ -273,6 +277,7 @@ export function createAsk(
  */
 export function createInactiveAsk(
   id: string,
+  transactionHash: string,
   media: Media,
   type: string,
   amount: BigInt,
@@ -294,6 +299,7 @@ export function createInactiveAsk(
   inactiveAsk.createdAtBlockNumber = createdAtBlockNumber
   inactiveAsk.inactivatedAtTimestamp = inactivatedAtTimestamp
   inactiveAsk.inactivatedAtBlockNumber = inactivatedAtBlockNumber
+  inactiveAsk.transactionHash = transactionHash
 
   inactiveAsk.save()
   return inactiveAsk
@@ -314,6 +320,7 @@ export function createInactiveAsk(
  */
 export function createInactiveBid(
   id: string,
+  transactionHash: string,
   type: string,
   media: Media,
   amount: BigInt,
@@ -328,6 +335,7 @@ export function createInactiveBid(
 ): InactiveBid {
   let inactiveBid = new InactiveBid(id)
   inactiveBid.type = type
+  inactiveBid.transactionHash = transactionHash
   ;(inactiveBid.media = media.id), (inactiveBid.amount = amount)
   inactiveBid.currency = currency.id
   inactiveBid.sellOnShare = sellOnShare
@@ -356,6 +364,7 @@ export function createInactiveBid(
  */
 export function createBid(
   id: string,
+  transactionHash: string,
   amount: BigInt,
   currency: Currency,
   sellOnShare: BigInt,
@@ -366,6 +375,7 @@ export function createBid(
   createdAtBlockNumber: BigInt
 ): Bid {
   let bid = new Bid(id)
+  bid.transactionHash = transactionHash
   bid.amount = amount
   bid.currency = currency.id
   bid.sellOnShare = sellOnShare
@@ -390,6 +400,7 @@ export function createBid(
  */
 export function createTransfer(
   id: string,
+  transactionHash: string,
   media: Media,
   from: User,
   to: User,
@@ -398,6 +409,7 @@ export function createTransfer(
 ): Transfer {
   let transfer = new Transfer(id)
   transfer.media = media.id
+  transfer.transactionHash = transactionHash
   transfer.from = from.id
   transfer.to = to.id
   transfer.createdAtTimestamp = createdAtTimestamp
@@ -421,6 +433,7 @@ export function createTransfer(
  */
 export function createURIUpdate(
   id: string,
+  transactionHash: string,
   media: Media,
   type: string,
   from: string,
@@ -431,6 +444,7 @@ export function createURIUpdate(
   createdAtBlockNumber: BigInt
 ): URIUpdate {
   let uriUpdate = new URIUpdate(id)
+  uriUpdate.transactionHash = transactionHash
   uriUpdate.media = media.id
   uriUpdate.type = type
   uriUpdate.from = from
@@ -446,6 +460,7 @@ export function createURIUpdate(
 
 export function createReserveAuction(
   id: string,
+  transactionHash: string,
   tokenId: BigInt,
   tokenContract: string,
   media: Media | null,
@@ -461,6 +476,7 @@ export function createReserveAuction(
   let reserveAuction = new ReserveAuction(id)
 
   reserveAuction.tokenId = tokenId
+  reserveAuction.transactionHash = transactionHash
   reserveAuction.tokenContract = tokenContract
   reserveAuction.token = tokenContract.concat('-').concat(tokenId.toString()) 
   reserveAuction.media = media ? media.id : null
@@ -496,6 +512,7 @@ export function handleReserveAuctionExtended(auction: ReserveAuction, duration: 
 
 export function createReserveAuctionBid(
   id: string,
+  transactionHash: string,
   auction: ReserveAuction,
   amount: BigInt,
   createdAtTimestamp: BigInt,
@@ -507,6 +524,7 @@ export function createReserveAuctionBid(
   log.warning('Creating active bid with id {}', [id])
 
   bid.reserveAuction = auction.id
+  bid.transactionHash = transactionHash
   bid.amount = amount
   bid.bidder = bidder.id
   bid.bidType = 'Active'
@@ -528,6 +546,7 @@ export function handleBidReplaced(auction: ReserveAuction, timestamp: BigInt, bl
 
   log.info('setting reserve auction', [])
   inactiveBid.reserveAuction = activeBid.reserveAuction
+  inactiveBid.transactionHash = activeBid.transactionHash
   log.info('setting amount: {}', [activeBid.amount.toString()])
   inactiveBid.amount = activeBid.amount
   log.info('setting bidder', [])

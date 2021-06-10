@@ -75,6 +75,7 @@ export function handleAskCreated(event: AskCreated): void {
   if (ask == null) {
     createAsk(
       askId,
+      event.transaction.hash.toString(),
       onchainAsk.amount,
       currency,
       media as Media,
@@ -91,6 +92,7 @@ export function handleAskCreated(event: AskCreated): void {
     // create an inactive ask
     createInactiveAsk(
       inactiveAskId,
+      event.transaction.hash.toString(),
       media as Media,
       REMOVED,
       ask.amount,
@@ -157,6 +159,7 @@ export function handleAskRemoved(event: AskRemoved): void {
 
     createInactiveAsk(
       inactiveAskId,
+      event.transaction.hash.toString(),
       media as Media,
       REMOVED,
       ask.amount,
@@ -204,6 +207,7 @@ export function handleBidCreated(event: BidCreated): void {
 
   createBid(
     bidId,
+    event.transaction.hash.toString(),
     bid.amount,
     currency,
     bid.sellOnShare.value,
@@ -261,6 +265,7 @@ export function handleBidRemoved(event: BidRemoved): void {
   // Create Inactive Bid
   createInactiveBid(
     inactiveBidId,
+    event.transaction.hash.toString(),
     REMOVED,
     media as Media,
     onChainBid.amount,
@@ -340,6 +345,7 @@ export function handleBidFinalized(event: BidFinalized): void {
   // Create Inactive Bid
   createInactiveBid(
     inactiveBidId,
+    event.transaction.hash.toString(),
     FINALIZED,
     media as Media,
     onChainBid.amount,
