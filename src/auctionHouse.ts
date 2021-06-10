@@ -53,6 +53,8 @@ export function handleReserveAuctionApprovalUpdate(event: AuctionApprovalUpdated
 
   auction.approved = event.params.approved
   auction.status = 'Active'
+  auction.approvedTimestamp = event.block.timestamp;
+  auction.approvedBlockNumber = event.block.number;
   auction.save()
 
   log.info(`Completed handler for AuctionApprovalUpdate on auction {}`, [id])

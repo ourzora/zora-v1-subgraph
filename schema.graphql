@@ -407,6 +407,12 @@ type ReserveAuction @entity {
   "The previous bids on this auction"
   previousBids: [InactiveReserveAuctionBid!]  @derivedFrom(field: "reserveAuction")
 
+  "The time the auction was approved"
+  approvedTimestamp: BigInt
+
+  "The number of the block the auction was Approved"
+  approvedBlockNumber: BigInt
+
   "The timestamp of the block the Transfer was created in"
   createdAtTimestamp: BigInt!
 
