@@ -546,7 +546,6 @@ export function handleBidReplaced(auction: ReserveAuction, timestamp: BigInt, bl
 
   log.info('setting reserve auction', [])
   inactiveBid.reserveAuction = activeBid.reserveAuction
-  log.info('setting reserve auction hash', [])
   inactiveBid.transactionHash = activeBid.transactionHash
   log.info('setting amount: {}', [activeBid.amount.toString()])
   inactiveBid.amount = activeBid.amount
