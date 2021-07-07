@@ -4,7 +4,7 @@
   "marketStartBlock": 1,
   "mediaAddress": "1D7022f5B17d2F8B695918FB48fa1089C9f85401",
   "mediaStartBlock": 2,
-  "wethAddress": "0x0B1ba0af832d7C05fD64161E0Db78E85978E8082",
+  "wethAddress": "0B1ba0af832d7C05fD64161E0Db78E85978E8082",
   "auctionHouseAddress": "48BaCB9266a570d521063EF5dD96e61686DbE788",
   "auctionHouseStartBlock": 5
 }
