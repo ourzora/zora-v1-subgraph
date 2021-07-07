@@ -7,6 +7,8 @@
     "deploy-contracts": "ts-node scripts/deploy.ts",
     "prepare:mainnet": "mustache config/1.json subgraph.template.yaml > subgraph.yaml",
     "prepare:rinkeby": "mustache config/4.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:mumbai": "mustache config/80001.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:polygon": "mustache config/137.json subgraph.template.yaml > subgraph.yaml",
     "prepare:local": "mustache config/50.json subgraph.template.yaml > subgraph.yaml",
     "create": "graph create sporkspatula/zora-v1-subgraph --node https://api.thegraph.com/deploy/",
     "create-local": "graph create sporkspatula/zora-v1-subgraph --node http://127.0.0.1:8020",

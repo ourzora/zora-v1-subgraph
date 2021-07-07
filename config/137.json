@@ -1,0 +1,10 @@
+{
+  "network": "matic",
+  "marketAddress": "E20bd7dC76e09AEBC2A9A732AB6AEE616c5a17Eb",
+  "marketStartBlock": 16304498,
+  "mediaAddress": "6953190AAfD8f8995e8f47e8F014d0dB83E92300",
+  "mediaStartBlock": 16304502,
+  "wethAddress": "0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+  "auctionHouseAddress": "48F1C97259Dc7f3900965391651693BaeBfd59A2",
+  "auctionHouseStartBlock": 16317727
+}

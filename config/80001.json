@@ -1,0 +1,10 @@
+{
+  "network": "mumbai",
+  "marketAddress": "E5BFAB544ecA83849c53464F85B7164375Bdaac1",
+  "marketStartBlock": 15727426,
+  "mediaAddress": "abEFBc9fD2F806065b4f3C237d4b59D9A97Bcac7",
+  "mediaStartBlock": 15727537,
+  "wethAddress": "9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
+  "auctionHouseAddress": "6953190AAfD8f8995e8f47e8F014d0dB83E92300",
+  "auctionHouseStartBlock": 15743009
+}
