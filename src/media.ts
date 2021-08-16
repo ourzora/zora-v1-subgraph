@@ -219,6 +219,19 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
   if (approved == true) {
     owner.authorizedUsers = owner.authorizedUsers.concat([operator.id])
   } else {
+    // if authorizedUsers array is null, no-op
+    if (!owner.authorizedUsers) {
+      log.info(
+        'Owner does not currently have any authorized users. No db changes neccessary. Returning early.',
+        []
+      )
+      log.info(
+        `Completed handler for ApprovalForAll Event for owner: {}, operator: {}, approved: {}`,
+        [ownerAddr, operatorAddr, approved.toString()]
+      )
+      return
+    }
+
     let index = owner.authorizedUsers.indexOf(operator.id)
     let copyAuthorizedUsers = owner.authorizedUsers
     copyAuthorizedUsers.splice(index, 1)
