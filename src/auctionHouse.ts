@@ -9,23 +9,28 @@ import {
   setReserveAuctionFirstBidTime,
 } from './helpers'
 import {
+  AuctionHouse,
   AuctionApprovalUpdated,
   AuctionBid,
   AuctionCanceled,
-  AuctionCreated, AuctionDurationExtended,
-  AuctionEnded, AuctionReservePriceUpdated
+  AuctionCreated,
+  AuctionDurationExtended,
+  AuctionEnded,
+  AuctionReservePriceUpdated,
 } from '../types/AuctionHouse/AuctionHouse'
 import { Media, ReserveAuction } from '../types/schema'
 import { log } from '@graphprotocol/graph-ts'
 
 export function handleReserveAuctionCreated(event: AuctionCreated): void {
-
-  log.info(`Starting handler for AuctionCreated for auction {}`, [event.params.auctionId.toString()])
+  log.info(`Starting handler for AuctionCreated for auction {}`, [
+    event.params.auctionId.toString(),
+  ])
 
   let tokenId = event.params.tokenId.toString()
   let tokenOwner = findOrCreateUser(event.params.tokenOwner.toHexString())
   let curator = findOrCreateUser(event.params.curator.toHexString())
-  let media = Media.load(tokenId)
+
+  let media = loadMediaFromReserveAuctionCreatedEvent(event)
 
   createReserveAuction(
     event.params.auctionId.toString(),
@@ -43,7 +48,9 @@ export function handleReserveAuctionCreated(event: AuctionCreated): void {
     curator
   )
 
-  log.info(`Completed handler for AuctionCreated for auction {}`, [event.params.auctionId.toString()])
+  log.info(`Completed handler for AuctionCreated for auction {}`, [
+    event.params.auctionId.toString(),
+  ])
 }
 
 export function handleReserveAuctionApprovalUpdate(event: AuctionApprovalUpdated): void {
@@ -54,14 +61,16 @@ export function handleReserveAuctionApprovalUpdate(event: AuctionApprovalUpdated
 
   auction.approved = event.params.approved
   auction.status = 'Active'
-  auction.approvedTimestamp = event.block.timestamp;
-  auction.approvedBlockNumber = event.block.number;
+  auction.approvedTimestamp = event.block.timestamp
+  auction.approvedBlockNumber = event.block.number
   auction.save()
 
   log.info(`Completed handler for AuctionApprovalUpdate on auction {}`, [id])
 }
 
-export function handleReserveAuctionReservePriceUpdate(event: AuctionReservePriceUpdated): void {
+export function handleReserveAuctionReservePriceUpdate(
+  event: AuctionReservePriceUpdated
+): void {
   let id = event.params.auctionId.toString()
   log.info(`Starting handler for AuctionApprovalUpdate on auction {}`, [id])
 
@@ -79,7 +88,7 @@ export function handleReserveAuctionBid(event: AuctionBid): void {
 
   let auction = ReserveAuction.load(auctionId)
 
-  if(auction === null) {
+  if (auction === null) {
     log.error('Missing Reserve Auction with id {} for bid', [auctionId])
     return
   }
@@ -89,10 +98,18 @@ export function handleReserveAuctionBid(event: AuctionBid): void {
     setReserveAuctionFirstBidTime(auction as ReserveAuction, event.block.timestamp)
   } else {
     log.info('replacing bid', [])
-    handleBidReplaced(auction as ReserveAuction, event.block.timestamp, event.block.number)
+    handleBidReplaced(
+      auction as ReserveAuction,
+      event.block.timestamp,
+      event.block.number
+    )
   }
 
-  let id = auctionId.concat('-').concat(event.transaction.hash.toHexString()).concat('-').concat(event.logIndex.toString())
+  let id = auctionId
+    .concat('-')
+    .concat(event.transaction.hash.toHexString())
+    .concat('-')
+    .concat(event.logIndex.toString())
 
   createReserveAuctionBid(
     id,
@@ -107,18 +124,20 @@ export function handleReserveAuctionBid(event: AuctionBid): void {
   log.info(`Completed handler for AuctionBid on auction {}`, [auctionId])
 }
 
-export function handleReserveAuctionDurationExtended(event: AuctionDurationExtended): void {
+export function handleReserveAuctionDurationExtended(
+  event: AuctionDurationExtended
+): void {
   let auctionId = event.params.auctionId.toString()
   log.info(`Starting handler for AuctionDurationExtended on auction {}`, [auctionId])
 
   let auction = ReserveAuction.load(auctionId)
 
-  if(auction === null) {
+  if (auction === null) {
     log.error('Missing Reserve Auction with id {} for bid', [auctionId])
     return
   }
 
-  handleReserveAuctionExtended(auction as ReserveAuction, event.params.duration);
+  handleReserveAuctionExtended(auction as ReserveAuction, event.params.duration)
 
   log.info(`Completed handler for AuctionDurationExtended on auction {}`, [auctionId])
 }
@@ -129,16 +148,25 @@ export function handleReserveAuctionEnded(event: AuctionEnded): void {
 
   let auction = ReserveAuction.load(auctionId)
 
-  if(!auction) {
+  if (!auction) {
     log.error('Missing Reserve Auction with id {} for bid', [auctionId])
     return
   }
 
   // First, remove the current bid and set it to the winning bid
-  handleBidReplaced(auction as ReserveAuction, event.block.timestamp, event.block.number, true)
+  handleBidReplaced(
+    auction as ReserveAuction,
+    event.block.timestamp,
+    event.block.number,
+    true
+  )
 
   // Then, finalize the auction
-  handleFinishedAuction(auction as ReserveAuction, event.block.timestamp, event.block.number)
+  handleFinishedAuction(
+    auction as ReserveAuction,
+    event.block.timestamp,
+    event.block.number
+  )
 
   log.info(`Completed handler for AuctionEnd on auction {}`, [auctionId])
 }
@@ -149,18 +177,38 @@ export function handleReserveAuctionCanceled(event: AuctionCanceled): void {
 
   let auction = ReserveAuction.load(auctionId)
 
-  if(!auction) {
+  if (!auction) {
     log.error('Missing Reserve Auction with id {} for bid', [auctionId])
   }
 
   // First, remove any current bid and set it to refunded
-  if(auction.currentBid) {
-    handleBidReplaced(auction as ReserveAuction, event.block.timestamp, event.block.number)
+  if (auction.currentBid) {
+    handleBidReplaced(
+      auction as ReserveAuction,
+      event.block.timestamp,
+      event.block.number
+    )
   }
 
   // Then, create an inactive auction based of of the current active auction
   // Then, finalize the auction
-  handleFinishedAuction(auction as ReserveAuction, event.block.timestamp, event.block.number)
+  handleFinishedAuction(
+    auction as ReserveAuction,
+    event.block.timestamp,
+    event.block.number
+  )
 
   log.info(`Completed handler for AuctionCanceled on auction {}`, [auctionId])
+}
+
+function loadMediaFromReserveAuctionCreatedEvent(event: AuctionCreated): Media | null {
+  let tokenId = event.params.tokenId.toString()
+  let auctionHouse = AuctionHouse.bind(event.address)
+  let zoraMediaAddress = auctionHouse.zora()
+
+  if (event.params.tokenContract.toHexString() == zoraMediaAddress.toHexString()) {
+    return Media.load(tokenId)
+  }
+
+  return null
 }
